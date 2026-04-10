@@ -1,13 +1,16 @@
 package com.guardianapp.infrastructure.config;
 
+import com.guardianapp.application.service.AlertService;
 import com.guardianapp.application.service.InvitationService;
 import com.guardianapp.application.service.UserService;
 import com.guardianapp.application.service.LinkService;
+import com.guardianapp.domain.port.in.AlertUseCase;
 import com.guardianapp.domain.port.in.CreateLinkUseCase;
 import com.guardianapp.domain.port.in.GetUserUseCase;
 import com.guardianapp.domain.port.in.InvitationUseCase;
 import com.guardianapp.domain.port.in.QueryLinksUseCase;
 import com.guardianapp.domain.port.in.RegisterUserUseCase;
+import com.guardianapp.domain.port.out.AlertRepositoryPort;
 import com.guardianapp.domain.port.out.InvitationRepositoryPort;
 import com.guardianapp.domain.port.out.UserRepositoryPort;
 import com.guardianapp.domain.port.out.LinkRepositoryPort;
@@ -78,5 +81,20 @@ public class BeanConfiguration {
     @Bean
     public InvitationUseCase invitationUseCase(InvitationService invitationService) {
         return invitationService;
+    }
+
+    /**
+     * Creates the AlertService singleton.
+     */
+    @Bean
+    public AlertService alertService(
+            AlertRepositoryPort alertRepository,
+            LinkRepositoryPort linkRepository) {
+        return new AlertService(alertRepository, linkRepository);
+    }
+
+    @Bean
+    public AlertUseCase alertUseCase(AlertService alertService) {
+        return alertService;
     }
 }
