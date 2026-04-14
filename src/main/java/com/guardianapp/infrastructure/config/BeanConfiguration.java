@@ -1,17 +1,17 @@
 package com.guardianapp.infrastructure.config;
 
 import com.guardianapp.application.service.AlertService;
+import com.guardianapp.application.service.IdentityVerificationService;
 import com.guardianapp.application.service.InvitationService;
+import com.guardianapp.application.service.NotificationTokenService;
 import com.guardianapp.application.service.UserService;
 import com.guardianapp.application.service.LinkService;
-import com.guardianapp.domain.port.in.AlertUseCase;
-import com.guardianapp.domain.port.in.CreateLinkUseCase;
-import com.guardianapp.domain.port.in.GetUserUseCase;
-import com.guardianapp.domain.port.in.InvitationUseCase;
-import com.guardianapp.domain.port.in.QueryLinksUseCase;
-import com.guardianapp.domain.port.in.RegisterUserUseCase;
+import com.guardianapp.domain.port.out.DeviceTokenRepositoryPort;
+import com.guardianapp.domain.port.out.IdentityVerificationNotificationPort;
+import com.guardianapp.domain.port.out.IdentityVerificationRepositoryPort;
 import com.guardianapp.domain.port.out.AlertRepositoryPort;
 import com.guardianapp.domain.port.out.InvitationRepositoryPort;
+import com.guardianapp.domain.port.out.LinkNotificationPort;
 import com.guardianapp.domain.port.out.UserRepositoryPort;
 import com.guardianapp.domain.port.out.LinkRepositoryPort;
 import org.springframework.context.annotation.Bean;
@@ -40,8 +40,9 @@ public class BeanConfiguration {
     @Bean
     public LinkService linkService(
             LinkRepositoryPort linkRepository,
-            UserRepositoryPort userRepository) {
-        return new LinkService(linkRepository, userRepository);
+            UserRepositoryPort userRepository,
+            LinkNotificationPort linkNotificationPort) {
+        return new LinkService(linkRepository, userRepository, linkNotificationPort);
     }
 
     /**
@@ -51,36 +52,9 @@ public class BeanConfiguration {
     public InvitationService invitationService(
             InvitationRepositoryPort invitationRepository,
             UserRepositoryPort userRepository,
-            LinkRepositoryPort linkRepository) {
-        return new InvitationService(invitationRepository, userRepository, linkRepository);
-    }
-
-    // ==================== Use Case Aliases ====================
-    // These beans expose the use cases by their interface types
-
-    @Bean
-    public RegisterUserUseCase registerUserUseCase(UserService userService) {
-        return userService;
-    }
-
-    @Bean
-    public GetUserUseCase getUserUseCase(UserService userService) {
-        return userService;
-    }
-
-    @Bean
-    public CreateLinkUseCase createLinkUseCase(LinkService linkService) {
-        return linkService;
-    }
-
-    @Bean
-    public QueryLinksUseCase queryLinksUseCase(LinkService linkService) {
-        return linkService;
-    }
-
-    @Bean
-    public InvitationUseCase invitationUseCase(InvitationService invitationService) {
-        return invitationService;
+            LinkRepositoryPort linkRepository,
+            LinkNotificationPort linkNotificationPort) {
+        return new InvitationService(invitationRepository, userRepository, linkRepository, linkNotificationPort);
     }
 
     /**
@@ -94,7 +68,20 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public AlertUseCase alertUseCase(AlertService alertService) {
-        return alertService;
+    public IdentityVerificationService identityVerificationService(
+            IdentityVerificationRepositoryPort verificationRepository,
+            LinkRepositoryPort linkRepository,
+            IdentityVerificationNotificationPort notificationPort) {
+        return new IdentityVerificationService(
+            verificationRepository,
+            linkRepository,
+            notificationPort
+        );
     }
+
+    @Bean
+    public NotificationTokenService notificationTokenService(DeviceTokenRepositoryPort deviceTokenRepository) {
+        return new NotificationTokenService(deviceTokenRepository);
+    }
+
 }

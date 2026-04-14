@@ -11,6 +11,7 @@ import com.guardianapp.domain.model.valueobject.InvitationId;
 import com.guardianapp.domain.model.valueobject.UserId;
 import com.guardianapp.domain.port.in.InvitationUseCase;
 import com.guardianapp.domain.port.out.InvitationRepositoryPort;
+import com.guardianapp.domain.port.out.LinkNotificationPort;
 import com.guardianapp.domain.port.out.LinkRepositoryPort;
 import com.guardianapp.domain.port.out.UserRepositoryPort;
 
@@ -26,13 +27,16 @@ public class InvitationService implements InvitationUseCase {
     private final InvitationRepositoryPort invitationRepository;
     private final UserRepositoryPort userRepository;
     private final LinkRepositoryPort linkRepository;
+    private final LinkNotificationPort linkNotificationPort;
 
     public InvitationService(InvitationRepositoryPort invitationRepository,
                              UserRepositoryPort userRepository,
-                             LinkRepositoryPort linkRepository) {
+                             LinkRepositoryPort linkRepository,
+                             LinkNotificationPort linkNotificationPort) {
         this.invitationRepository = invitationRepository;
         this.userRepository = userRepository;
         this.linkRepository = linkRepository;
+        this.linkNotificationPort = linkNotificationPort;
     }
 
     @Override
@@ -122,7 +126,9 @@ public class InvitationService implements InvitationUseCase {
         );
 
         // Persist and return the link
-        return linkRepository.save(link);
+        Link saved = linkRepository.save(link);
+        linkNotificationPort.notifyLinkPending(saved);
+        return saved;
     }
 
     @Override
