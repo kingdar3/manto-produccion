@@ -73,7 +73,8 @@ public class LinkService implements CreateLinkUseCase, QueryLinksUseCase {
 
         // Persist and return
         Link saved = linkRepository.save(link);
-        linkNotificationPort.notifyLinkActivated(saved);
+        // A freshly created link starts in PENDING.
+        linkNotificationPort.notifyLinkPending(saved);
         return saved;
     }
 
@@ -94,7 +95,10 @@ public class LinkService implements CreateLinkUseCase, QueryLinksUseCase {
         link.confirm(command.connectionCode());
 
         // Persist and return
-        return linkRepository.save(link);
+        Link saved = linkRepository.save(link);
+        // Notify both parties so the Host UI can update automatically.
+        linkNotificationPort.notifyLinkActivated(saved);
+        return saved;
     }
 
     @Override

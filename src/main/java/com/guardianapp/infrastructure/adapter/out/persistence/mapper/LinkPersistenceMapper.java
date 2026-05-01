@@ -23,8 +23,6 @@ public interface LinkPersistenceMapper {
     @Mapping(target = "connectionCode", source = "connectionCode.code")
     @Mapping(target = "codeCreatedAt", source = "connectionCode.createdAt")
     @Mapping(target = "codeExpiresAt", source = "connectionCode.expiresAt")
-    @Mapping(target = "host", ignore = true)
-    @Mapping(target = "protectedUser", ignore = true)
     LinkEntity toEntity(Link link);
 
     default Link toDomain(LinkEntity entity) {

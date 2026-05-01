@@ -1,12 +1,22 @@
 package com.guardianapp.infrastructure.config;
 
 import com.guardianapp.application.service.AlertService;
+import com.guardianapp.application.service.EmergencyAlertService;
+import com.guardianapp.application.service.EmergencyAudioService;
+import com.guardianapp.application.service.FamilyGroupService;
+import com.guardianapp.application.service.FamilyInvitationService;
 import com.guardianapp.application.service.IdentityVerificationService;
 import com.guardianapp.application.service.InvitationService;
 import com.guardianapp.application.service.NotificationTokenService;
 import com.guardianapp.application.service.UserService;
 import com.guardianapp.application.service.LinkService;
 import com.guardianapp.domain.port.out.DeviceTokenRepositoryPort;
+import com.guardianapp.domain.port.out.EmergencyAlertRepositoryPort;
+import com.guardianapp.domain.port.out.EmergencyAudioRepositoryPort;
+import com.guardianapp.domain.port.out.EmergencyAudioStoragePort;
+import com.guardianapp.domain.port.out.EmergencyNotificationPort;
+import com.guardianapp.domain.port.out.FamilyGroupRepositoryPort;
+import com.guardianapp.domain.port.out.FamilyInvitationRepositoryPort;
 import com.guardianapp.domain.port.out.IdentityVerificationNotificationPort;
 import com.guardianapp.domain.port.out.IdentityVerificationRepositoryPort;
 import com.guardianapp.domain.port.out.AlertRepositoryPort;
@@ -53,8 +63,15 @@ public class BeanConfiguration {
             InvitationRepositoryPort invitationRepository,
             UserRepositoryPort userRepository,
             LinkRepositoryPort linkRepository,
-            LinkNotificationPort linkNotificationPort) {
-        return new InvitationService(invitationRepository, userRepository, linkRepository, linkNotificationPort);
+            LinkNotificationPort linkNotificationPort,
+            FamilyGroupRepositoryPort familyGroupRepository) {
+        return new InvitationService(
+                invitationRepository,
+                userRepository,
+                linkRepository,
+                linkNotificationPort,
+                familyGroupRepository
+        );
     }
 
     /**
@@ -65,6 +82,51 @@ public class BeanConfiguration {
             AlertRepositoryPort alertRepository,
             LinkRepositoryPort linkRepository) {
         return new AlertService(alertRepository, linkRepository);
+    }
+
+    @Bean
+    public EmergencyAlertService emergencyAlertService(
+            EmergencyAlertRepositoryPort emergencyAlertRepository,
+            LinkRepositoryPort linkRepository,
+            EmergencyNotificationPort emergencyNotificationPort,
+            FamilyGroupRepositoryPort familyGroupRepository) {
+        return new EmergencyAlertService(
+                emergencyAlertRepository,
+                linkRepository,
+                emergencyNotificationPort,
+                familyGroupRepository
+        );
+    }
+
+    @Bean
+    public EmergencyAudioService emergencyAudioService(
+            EmergencyAlertRepositoryPort emergencyAlertRepository,
+            EmergencyAudioRepositoryPort emergencyAudioRepository,
+            EmergencyAudioStoragePort emergencyAudioStorage) {
+        return new EmergencyAudioService(emergencyAlertRepository, emergencyAudioRepository, emergencyAudioStorage);
+    }
+
+    @Bean
+    public FamilyGroupService familyGroupService(
+            FamilyGroupRepositoryPort familyGroupRepository,
+            UserRepositoryPort userRepository) {
+        return new FamilyGroupService(familyGroupRepository, userRepository);
+    }
+
+    @Bean
+    public FamilyInvitationService familyInvitationService(
+            FamilyInvitationRepositoryPort familyInvitationRepository,
+            FamilyGroupRepositoryPort familyGroupRepository,
+            UserRepositoryPort userRepository,
+            LinkRepositoryPort linkRepository,
+            LinkNotificationPort linkNotificationPort) {
+        return new FamilyInvitationService(
+                familyInvitationRepository,
+                familyGroupRepository,
+                userRepository,
+                linkRepository,
+                linkNotificationPort
+        );
     }
 
     @Bean
