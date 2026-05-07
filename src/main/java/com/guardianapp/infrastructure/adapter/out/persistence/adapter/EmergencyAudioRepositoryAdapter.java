@@ -7,6 +7,7 @@ import com.guardianapp.infrastructure.adapter.out.persistence.mapper.EmergencyAu
 import com.guardianapp.infrastructure.adapter.out.persistence.repository.EmergencyAudioRecordingJpaRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -36,5 +37,13 @@ public class EmergencyAudioRepositoryAdapter implements EmergencyAudioRepository
     public Optional<EmergencyAudioRecording> findLatestByEmergencyAlertId(EmergencyAlertId emergencyAlertId) {
         return jpaRepository.findTopByEmergencyAlertIdOrderByCreatedAtDesc(emergencyAlertId.getValue())
                 .map(mapper::toDomain);
+    }
+
+    @Override
+    public List<EmergencyAudioRecording> findByEmergencyAlertId(EmergencyAlertId emergencyAlertId) {
+        return jpaRepository.findByEmergencyAlertIdOrderByCreatedAtDesc(emergencyAlertId.getValue())
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 }

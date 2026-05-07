@@ -21,4 +21,6 @@ public interface EmergencyAlertRepositoryPort {
     List<EmergencyAlert> findActiveByProtectedUserId(UserId protectedUserId);
 
     List<EmergencyAlert> findByProtectedUserId(UserId protectedUserId);
+
+    List<EmergencyAlert> findByHostUserId(UserId hostId);
 }

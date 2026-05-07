@@ -67,4 +67,12 @@ public class EmergencyAlertRepositoryAdapter implements EmergencyAlertRepository
                 .map(mapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public List<EmergencyAlert> findByHostUserId(UserId hostId) {
+        return jpaRepository.findByPrimaryHostUserIdOrderByCreatedAtDesc(hostId.getValue())
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
 }

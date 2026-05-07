@@ -4,6 +4,7 @@ import com.guardianapp.infrastructure.adapter.out.persistence.entity.EmergencyAu
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,4 +15,6 @@ import java.util.UUID;
 public interface EmergencyAudioRecordingJpaRepository extends JpaRepository<EmergencyAudioRecordingEntity, UUID> {
 
     Optional<EmergencyAudioRecordingEntity> findTopByEmergencyAlertIdOrderByCreatedAtDesc(UUID emergencyAlertId);
+
+    List<EmergencyAudioRecordingEntity> findByEmergencyAlertIdOrderByCreatedAtDesc(UUID emergencyAlertId);
 }

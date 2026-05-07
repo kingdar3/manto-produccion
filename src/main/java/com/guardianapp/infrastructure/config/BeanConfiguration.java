@@ -3,6 +3,8 @@ package com.guardianapp.infrastructure.config;
 import com.guardianapp.application.service.AlertService;
 import com.guardianapp.application.service.EmergencyAlertService;
 import com.guardianapp.application.service.EmergencyAudioService;
+import com.guardianapp.application.service.EmergencyAudioHistoryService;
+import com.guardianapp.application.service.EmergencyHistoryService;
 import com.guardianapp.application.service.FamilyGroupService;
 import com.guardianapp.application.service.FamilyInvitationService;
 import com.guardianapp.application.service.IdentityVerificationService;
@@ -104,6 +106,28 @@ public class BeanConfiguration {
             EmergencyAudioRepositoryPort emergencyAudioRepository,
             EmergencyAudioStoragePort emergencyAudioStorage) {
         return new EmergencyAudioService(emergencyAlertRepository, emergencyAudioRepository, emergencyAudioStorage);
+    }
+
+    @Bean
+    public EmergencyAudioHistoryService emergencyAudioHistoryService(
+            EmergencyAlertRepositoryPort emergencyAlertRepository,
+            EmergencyAudioRepositoryPort emergencyAudioRepository,
+            FamilyGroupRepositoryPort familyGroupRepository,
+            LinkRepositoryPort linkRepository) {
+        return new EmergencyAudioHistoryService(
+                emergencyAlertRepository,
+                emergencyAudioRepository,
+                familyGroupRepository,
+                linkRepository
+        );
+    }
+
+    @Bean
+    public EmergencyHistoryService emergencyHistoryService(
+            EmergencyAlertRepositoryPort emergencyAlertRepository,
+            FamilyGroupRepositoryPort familyGroupRepository,
+            LinkRepositoryPort linkRepository) {
+        return new EmergencyHistoryService(emergencyAlertRepository, familyGroupRepository, linkRepository);
     }
 
     @Bean

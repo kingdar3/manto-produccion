@@ -23,4 +23,6 @@ public interface EmergencyAlertJpaRepository extends JpaRepository<EmergencyAler
             EmergencyAlertStatus status);
 
     List<EmergencyAlertEntity> findByProtectedUserIdOrderByCreatedAtDesc(UUID protectedUserId);
+
+    List<EmergencyAlertEntity> findByPrimaryHostUserIdOrderByCreatedAtDesc(UUID hostUserId);
 }

@@ -40,7 +40,7 @@ public class EmergencyAudioService implements EmergencyAudioUseCase {
             throw EmergencyAudioException.notAuthorized(command.protectedUserId().toString());
         }
 
-        if (!emergencyAlert.isActive()) {
+        if (!emergencyAlert.isActive() && !emergencyAlert.isResolved()) {
             throw EmergencyAudioException.emergencyNotActive(command.emergencyAlertId().toString());
         }
 
