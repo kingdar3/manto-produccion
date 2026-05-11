@@ -4,13 +4,16 @@ import com.guardianapp.domain.enums.InvitationStatus;
 import com.guardianapp.domain.exception.InvitationException;
 import com.guardianapp.domain.exception.LinkException;
 import com.guardianapp.domain.exception.UserException;
+import com.guardianapp.domain.model.FamilyGroup;
 import com.guardianapp.domain.model.Invitation;
 import com.guardianapp.domain.model.Link;
 import com.guardianapp.domain.model.User;
 import com.guardianapp.domain.model.valueobject.InvitationId;
 import com.guardianapp.domain.model.valueobject.UserId;
 import com.guardianapp.domain.port.in.InvitationUseCase;
+import com.guardianapp.domain.port.out.FamilyGroupRepositoryPort;
 import com.guardianapp.domain.port.out.InvitationRepositoryPort;
+import com.guardianapp.domain.port.out.LinkNotificationPort;
 import com.guardianapp.domain.port.out.LinkRepositoryPort;
 import com.guardianapp.domain.port.out.UserRepositoryPort;
 
@@ -26,13 +29,19 @@ public class InvitationService implements InvitationUseCase {
     private final InvitationRepositoryPort invitationRepository;
     private final UserRepositoryPort userRepository;
     private final LinkRepositoryPort linkRepository;
+    private final LinkNotificationPort linkNotificationPort;
+    private final FamilyGroupRepositoryPort familyGroupRepository;
 
     public InvitationService(InvitationRepositoryPort invitationRepository,
                              UserRepositoryPort userRepository,
-                             LinkRepositoryPort linkRepository) {
+                             LinkRepositoryPort linkRepository,
+                             LinkNotificationPort linkNotificationPort,
+                             FamilyGroupRepositoryPort familyGroupRepository) {
         this.invitationRepository = invitationRepository;
         this.userRepository = userRepository;
         this.linkRepository = linkRepository;
+        this.linkNotificationPort = linkNotificationPort;
+        this.familyGroupRepository = familyGroupRepository;
     }
 
     @Override
@@ -122,7 +131,20 @@ public class InvitationService implements InvitationUseCase {
         );
 
         // Persist and return the link
-        return linkRepository.save(link);
+        Link saved = linkRepository.save(link);
+        linkNotificationPort.notifyLinkPending(saved);
+
+        // Auto-enroll protected user into host's primary family group when available
+        List<FamilyGroup> hostGroups = familyGroupRepository.findByPrimaryHostUserId(invitation.getHostId());
+        if (!hostGroups.isEmpty()) {
+            FamilyGroup group = hostGroups.get(0);
+            if (!group.hasMember(command.protectedUserId())) {
+                group.addProtectedMember(invitation.getHostId(), command.protectedUserId());
+                familyGroupRepository.save(group);
+            }
+        }
+
+        return saved;
     }
 
     @Override

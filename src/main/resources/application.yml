@@ -2,6 +2,11 @@ spring:
   application:
     name: guardian-api
 
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
   datasource:
     url: jdbc:postgresql://localhost:5432/guardian_db
     username: postgres
@@ -26,3 +31,13 @@ logging:
     com.guardianapp: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+firebase:
+  enabled: true
+  service-account-path: ${FIREBASE_SERVICE_ACCOUNT_PATH:secrets/manto-app-ade75-firebase-adminsdk-fbsvc-7118566358.json}
+
+google:
+  drive:
+    enabled: ${GOOGLE_DRIVE_ENABLED:false}
+    service-account-path: ${GOOGLE_DRIVE_SERVICE_ACCOUNT_PATH:secrets/google-drive-service-account.json}
+    folder-id: ${GOOGLE_DRIVE_FOLDER_ID:root}

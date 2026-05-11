@@ -58,14 +58,6 @@ public class LinkEntity {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "host_id", insertable = false, updatable = false)
-    private UserEntity host;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "protected_id", insertable = false, updatable = false)
-    private UserEntity protectedUser;
-
     @PrePersist
     protected void onCreate() {
         LocalDateTime now = LocalDateTime.now();

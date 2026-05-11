@@ -9,6 +9,7 @@ import com.guardianapp.domain.model.valueobject.UserId;
 import com.guardianapp.domain.model.valueobject.LinkId;
 import com.guardianapp.domain.port.in.CreateLinkUseCase;
 import com.guardianapp.domain.port.in.QueryLinksUseCase;
+import com.guardianapp.domain.port.out.LinkNotificationPort;
 import com.guardianapp.domain.port.out.UserRepositoryPort;
 import com.guardianapp.domain.port.out.LinkRepositoryPort;
 
@@ -28,11 +29,14 @@ public class LinkService implements CreateLinkUseCase, QueryLinksUseCase {
 
     private final LinkRepositoryPort linkRepository;
     private final UserRepositoryPort userRepository;
+    private final LinkNotificationPort linkNotificationPort;
 
     public LinkService(LinkRepositoryPort linkRepository, 
-                       UserRepositoryPort userRepository) {
+                       UserRepositoryPort userRepository,
+                       LinkNotificationPort linkNotificationPort) {
         this.linkRepository = linkRepository;
         this.userRepository = userRepository;
+        this.linkNotificationPort = linkNotificationPort;
     }
 
     // ==================== CreateLinkUseCase ====================
@@ -68,7 +72,10 @@ public class LinkService implements CreateLinkUseCase, QueryLinksUseCase {
         );
 
         // Persist and return
-        return linkRepository.save(link);
+        Link saved = linkRepository.save(link);
+        // A freshly created link starts in PENDING.
+        linkNotificationPort.notifyLinkPending(saved);
+        return saved;
     }
 
     @Override
@@ -88,7 +95,10 @@ public class LinkService implements CreateLinkUseCase, QueryLinksUseCase {
         link.confirm(command.connectionCode());
 
         // Persist and return
-        return linkRepository.save(link);
+        Link saved = linkRepository.save(link);
+        // Notify both parties so the Host UI can update automatically.
+        linkNotificationPort.notifyLinkActivated(saved);
+        return saved;
     }
 
     @Override
