@@ -8,6 +8,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -41,8 +43,16 @@ public class FamilyInvitationEntity {
     @Column(name = "family_group_id", nullable = false)
     private UUID familyGroupId;
 
+    @ManyToOne
+    @JoinColumn(name = "family_group_id", insertable = false, updatable = false)
+    private FamilyGroupEntity familyGroup;
+
     @Column(name = "invited_by_user_id", nullable = false)
     private UUID invitedByUserId;
+
+    @ManyToOne
+    @JoinColumn(name = "invited_by_user_id", insertable = false, updatable = false)
+    private UserEntity invitedByUser;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "target_role", nullable = false, length = 30)
@@ -66,6 +76,10 @@ public class FamilyInvitationEntity {
 
     @Column(name = "accepted_by_user_id")
     private UUID acceptedByUserId;
+
+    @ManyToOne
+    @JoinColumn(name = "accepted_by_user_id", insertable = false, updatable = false)
+    private UserEntity acceptedByUser;
 
     @PrePersist
     protected void onCreate() {
