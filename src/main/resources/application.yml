@@ -9,8 +9,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5432/guardian_db
-    username: guardian_user
-    password: guardian_pass
+    username: postgres
+    password: 12345678
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -37,6 +37,21 @@ firebase:
   service-account-path: ${FIREBASE_SERVICE_ACCOUNT_PATH:secrets/manto-app-ade75-firebase-adminsdk-fbsvc-7118566358.json}
 
 google:
+  safe-browsing:
+    enabled: ${GOOGLE_SAFE_BROWSING_ENABLED:true}
+    api-key: ${GOOGLE_SAFE_BROWSING_API_KEY:AIzaSyBtBXvklHmPfUTsTDJt88Vq1HKn_QGZreo}
+    base-url: ${GOOGLE_SAFE_BROWSING_BASE_URL:https://safebrowsing.googleapis.com}
+    client-id: ${GOOGLE_SAFE_BROWSING_CLIENT_ID:guardian-api}
+    client-version: ${GOOGLE_SAFE_BROWSING_CLIENT_VERSION:1.0.0}
+    threat-types:
+      - SOCIAL_ENGINEERING
+      - MALWARE
+      - UNWANTED_SOFTWARE
+      - POTENTIALLY_HARMFUL_APPLICATION
+    platform-types:
+      - ANY_PLATFORM
+    threat-entry-types:
+      - URL
   drive:
     enabled: ${GOOGLE_DRIVE_ENABLED:false}
     service-account-path: ${GOOGLE_DRIVE_SERVICE_ACCOUNT_PATH:secrets/google-drive-service-account.json}

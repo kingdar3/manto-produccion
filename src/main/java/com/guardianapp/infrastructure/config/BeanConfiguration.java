@@ -10,6 +10,7 @@ import com.guardianapp.application.service.FamilyInvitationService;
 import com.guardianapp.application.service.IdentityVerificationService;
 import com.guardianapp.application.service.InvitationService;
 import com.guardianapp.application.service.NotificationTokenService;
+import com.guardianapp.application.service.ThreatAnalysisService;
 import com.guardianapp.application.service.UserService;
 import com.guardianapp.application.service.LinkService;
 import com.guardianapp.domain.port.out.DeviceTokenRepositoryPort;
@@ -26,6 +27,7 @@ import com.guardianapp.domain.port.out.InvitationRepositoryPort;
 import com.guardianapp.domain.port.out.LinkNotificationPort;
 import com.guardianapp.domain.port.out.UserRepositoryPort;
 import com.guardianapp.domain.port.out.LinkRepositoryPort;
+import com.guardianapp.domain.port.out.SafeBrowsingPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -168,6 +170,11 @@ public class BeanConfiguration {
     @Bean
     public NotificationTokenService notificationTokenService(DeviceTokenRepositoryPort deviceTokenRepository) {
         return new NotificationTokenService(deviceTokenRepository);
+    }
+
+    @Bean
+    public ThreatAnalysisService threatAnalysisService(SafeBrowsingPort safeBrowsingPort) {
+        return new ThreatAnalysisService(safeBrowsingPort);
     }
 
 }
