@@ -1,6 +1,7 @@
 package com.guardianapp.infrastructure.config;
 
 import com.guardianapp.domain.exception.AlertException;
+import com.guardianapp.domain.exception.BlacklistUrlException;
 import com.guardianapp.domain.exception.DomainException;
 import com.guardianapp.domain.exception.EmergencyAlertException;
 import com.guardianapp.domain.exception.EmergencyAudioException;
@@ -123,6 +124,21 @@ public class GlobalExceptionHandler {
         } else {
             status = HttpStatus.BAD_REQUEST;
         }
+
+        return ResponseEntity.status(status).body(response);
+    }
+
+    /**
+     * Handles blacklist URL exceptions.
+     */
+    @ExceptionHandler(BlacklistUrlException.class)
+    public ResponseEntity<ErrorResponse> handleBlacklistUrlException(BlacklistUrlException ex) {
+        log.warn("Blacklist URL error: {}", ex.getMessage());
+
+        ErrorResponse response = new ErrorResponse(ex.getErrorCode(), ex.getMessage());
+        HttpStatus status = ex.getMessage().contains("already exists")
+            ? HttpStatus.CONFLICT
+            : HttpStatus.BAD_REQUEST;
 
         return ResponseEntity.status(status).body(response);
     }

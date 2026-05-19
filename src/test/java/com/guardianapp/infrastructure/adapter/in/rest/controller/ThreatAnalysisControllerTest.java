@@ -63,6 +63,22 @@ class ThreatAnalysisControllerTest {
             .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void shouldAnalyzeSingleUrl() throws Exception {
+        String payload = """
+            {
+              "url": "http://bbva-seguridad.xyz"
+            }
+            """;
+
+        mockMvc.perform(post("/api/v1/threats/url/analyze")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.url").value("http://bbva-seguridad.xyz"))
+            .andExpect(jsonPath("$.status").value("PHISHING"));
+    }
+
     @TestConfiguration
     static class StubConfig {
         @Bean

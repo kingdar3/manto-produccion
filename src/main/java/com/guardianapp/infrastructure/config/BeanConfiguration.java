@@ -1,6 +1,7 @@
 package com.guardianapp.infrastructure.config;
 
 import com.guardianapp.application.service.AlertService;
+import com.guardianapp.application.service.BlacklistUrlService;
 import com.guardianapp.application.service.EmergencyAlertService;
 import com.guardianapp.application.service.EmergencyAudioService;
 import com.guardianapp.application.service.EmergencyAudioHistoryService;
@@ -15,6 +16,7 @@ import com.guardianapp.application.service.ThreatAnalysisService;
 import com.guardianapp.application.service.UserService;
 import com.guardianapp.application.service.LinkService;
 import com.guardianapp.domain.port.out.DeviceTokenRepositoryPort;
+import com.guardianapp.domain.port.out.BlacklistUrlRepositoryPort;
 import com.guardianapp.domain.port.out.EmergencyAlertRepositoryPort;
 import com.guardianapp.domain.port.out.EmergencyAudioRepositoryPort;
 import com.guardianapp.domain.port.out.EmergencyAudioStoragePort;
@@ -180,6 +182,11 @@ public class BeanConfiguration {
     @Bean
     public NotificationTokenService notificationTokenService(DeviceTokenRepositoryPort deviceTokenRepository) {
         return new NotificationTokenService(deviceTokenRepository);
+    }
+
+    @Bean
+    public BlacklistUrlService blacklistUrlService(BlacklistUrlRepositoryPort blacklistUrlRepositoryPort) {
+        return new BlacklistUrlService(blacklistUrlRepositoryPort);
     }
 
     @Bean
