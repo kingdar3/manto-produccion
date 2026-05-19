@@ -72,7 +72,11 @@ class ThreatAnalysisControllerTest {
                 List.of(new UrlThreatAnalysis(
                     "http://bbva-seguridad.xyz",
                     UrlThreatStatus.PHISHING,
-                    "Detected social engineering (phishing/fraud)."
+                    "Detected social engineering (phishing/fraud).",
+                    80,
+                    List.of(),
+                    false,
+                    null
                 )),
                 "GOOGLE_SAFE_BROWSING",
                 LocalDateTime.now(),

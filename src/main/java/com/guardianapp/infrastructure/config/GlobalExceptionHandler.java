@@ -8,6 +8,7 @@ import com.guardianapp.domain.exception.FamilyGroupException;
 import com.guardianapp.domain.exception.FamilyInvitationException;
 import com.guardianapp.domain.exception.IdentityVerificationException;
 import com.guardianapp.domain.exception.InvitationException;
+import com.guardianapp.domain.exception.SmsThreatAlertException;
 import com.guardianapp.domain.exception.UserException;
 import com.guardianapp.domain.exception.LinkException;
 import com.guardianapp.infrastructure.adapter.in.rest.dto.response.ErrorResponse;
@@ -114,6 +115,27 @@ public class GlobalExceptionHandler {
         
         ErrorResponse response = new ErrorResponse(ex.getErrorCode(), ex.getMessage());
         
+        HttpStatus status;
+        if (ex.getMessage().contains("not found")) {
+            status = HttpStatus.NOT_FOUND;
+        } else if (ex.getMessage().contains("not authorized")) {
+            status = HttpStatus.FORBIDDEN;
+        } else {
+            status = HttpStatus.BAD_REQUEST;
+        }
+
+        return ResponseEntity.status(status).body(response);
+    }
+
+    /**
+     * Handles SMS threat alert exceptions.
+     */
+    @ExceptionHandler(SmsThreatAlertException.class)
+    public ResponseEntity<ErrorResponse> handleSmsThreatAlertException(SmsThreatAlertException ex) {
+        log.warn("SMS threat alert error: {}", ex.getMessage());
+
+        ErrorResponse response = new ErrorResponse(ex.getErrorCode(), ex.getMessage());
+
         HttpStatus status;
         if (ex.getMessage().contains("not found")) {
             status = HttpStatus.NOT_FOUND;

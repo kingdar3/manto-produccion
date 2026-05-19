@@ -10,6 +10,7 @@ import com.guardianapp.application.service.FamilyInvitationService;
 import com.guardianapp.application.service.IdentityVerificationService;
 import com.guardianapp.application.service.InvitationService;
 import com.guardianapp.application.service.NotificationTokenService;
+import com.guardianapp.application.service.SmsThreatAlertService;
 import com.guardianapp.application.service.ThreatAnalysisService;
 import com.guardianapp.application.service.UserService;
 import com.guardianapp.application.service.LinkService;
@@ -28,6 +29,8 @@ import com.guardianapp.domain.port.out.LinkNotificationPort;
 import com.guardianapp.domain.port.out.UserRepositoryPort;
 import com.guardianapp.domain.port.out.LinkRepositoryPort;
 import com.guardianapp.domain.port.out.SafeBrowsingPort;
+import com.guardianapp.domain.port.out.SmsThreatAlertRepositoryPort;
+import com.guardianapp.domain.port.out.TrustedDomainRepositoryPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -86,6 +89,13 @@ public class BeanConfiguration {
             AlertRepositoryPort alertRepository,
             LinkRepositoryPort linkRepository) {
         return new AlertService(alertRepository, linkRepository);
+    }
+
+    @Bean
+    public SmsThreatAlertService smsThreatAlertService(
+            SmsThreatAlertRepositoryPort smsThreatAlertRepository,
+            LinkRepositoryPort linkRepository) {
+        return new SmsThreatAlertService(smsThreatAlertRepository, linkRepository);
     }
 
     @Bean
@@ -173,8 +183,9 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public ThreatAnalysisService threatAnalysisService(SafeBrowsingPort safeBrowsingPort) {
-        return new ThreatAnalysisService(safeBrowsingPort);
+    public ThreatAnalysisService threatAnalysisService(SafeBrowsingPort safeBrowsingPort,
+                                                       TrustedDomainRepositoryPort trustedDomainRepositoryPort) {
+        return new ThreatAnalysisService(safeBrowsingPort, trustedDomainRepositoryPort);
     }
 
 }
