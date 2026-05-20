@@ -2,7 +2,6 @@ package com.guardianapp.domain.model;
 
 import com.guardianapp.domain.enums.LinkStatus;
 import com.guardianapp.domain.exception.LinkException;
-import com.guardianapp.domain.model.valueobject.ConnectionCode;
 import com.guardianapp.domain.model.valueobject.UserId;
 import com.guardianapp.domain.model.valueobject.LinkId;
 
@@ -18,7 +17,6 @@ public class Link {
     private final LinkId id;
     private final UserId hostId;
     private final UserId protectedId;
-    private ConnectionCode connectionCode;
     private LinkStatus status;
     private final LocalDateTime createdAt;
     private LocalDateTime confirmedAt;
@@ -28,13 +26,11 @@ public class Link {
      * Private constructor - use factory methods.
      */
     private Link(LinkId id, UserId hostId, UserId protectedId,
-                 ConnectionCode connectionCode, LinkStatus status,
-                 LocalDateTime createdAt, LocalDateTime confirmedAt,
-                 LocalDateTime updatedAt) {
+                 LinkStatus status, LocalDateTime createdAt,
+                 LocalDateTime confirmedAt, LocalDateTime updatedAt) {
         this.id = id;
         this.hostId = hostId;
         this.protectedId = protectedId;
-        this.connectionCode = connectionCode;
         this.status = status;
         this.createdAt = createdAt;
         this.confirmedAt = confirmedAt;
@@ -42,8 +38,8 @@ public class Link {
     }
 
     /**
-     * Creates a new link request from the host.
-     * Automatically generates a connection code for the protected user to enter.
+     * Creates a new link between host and protected user.
+     * With the 8-character invitation flow, links are activated immediately.
      */
     public static Link createRequest(UserId hostId, UserId protectedId) {
         Objects.requireNonNull(hostId, "Host ID cannot be null");
@@ -58,10 +54,9 @@ public class Link {
             LinkId.generate(),
             hostId,
             protectedId,
-            ConnectionCode.generate(),
-            LinkStatus.PENDING,
+            LinkStatus.ACTIVE,
             now,
-            null,
+            now,
             now
         );
     }
@@ -70,38 +65,20 @@ public class Link {
      * Reconstructs a link from the persistence layer.
      */
     public static Link reconstruct(LinkId id, UserId hostId, UserId protectedId,
-                                    ConnectionCode connectionCode, LinkStatus status,
-                                    LocalDateTime createdAt, LocalDateTime confirmedAt,
-                                    LocalDateTime updatedAt) {
-        return new Link(id, hostId, protectedId, connectionCode, status,
-                       createdAt, confirmedAt, updatedAt);
-    }
-
-    /**
-     * Confirms the link using the connection code.
-     * The protected user must enter the correct code to activate the link.
-     */
-    public void confirm(String inputCode) {
-        validatePendingStatus();
-
-        if (connectionCode.isExpired()) {
-            throw new LinkException("Connection code has expired");
-        }
-
-        if (!connectionCode.validate(inputCode)) {
-            throw new LinkException("Connection code is incorrect");
-        }
-
-        this.status = LinkStatus.ACTIVE;
-        this.confirmedAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+                                    LinkStatus status, LocalDateTime createdAt,
+                                    LocalDateTime confirmedAt, LocalDateTime updatedAt) {
+        return new Link(id, hostId, protectedId, status, createdAt, confirmedAt, updatedAt);
     }
 
     /**
      * Rejects the link request.
      */
     public void reject() {
-        validatePendingStatus();
+        if (status != LinkStatus.PENDING) {
+            throw new LinkException(
+                "This operation is only allowed for pending links. Current status: " + status
+            );
+        }
         this.status = LinkStatus.REJECTED;
         this.updatedAt = LocalDateTime.now();
     }
@@ -118,27 +95,12 @@ public class Link {
     }
 
     /**
-     * Regenerates the connection code (for pending requests that expired).
-     */
-    public void regenerateCode() {
-        validatePendingStatus();
-        this.connectionCode = ConnectionCode.generate();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    /**
      * Checks if the link is active and allows monitoring.
      */
     public boolean isActive() {
         return this.status == LinkStatus.ACTIVE;
     }
 
-    /**
-     * Checks if the link is pending confirmation.
-     */
-    public boolean isPending() {
-        return this.status == LinkStatus.PENDING;
-    }
 
     /**
      * Checks if a specific user is part of this link.
@@ -161,14 +123,6 @@ public class Link {
         return protectedId.equals(userId);
     }
 
-    private void validatePendingStatus() {
-        if (status != LinkStatus.PENDING) {
-            throw new LinkException(
-                "This operation is only allowed for pending links. Current status: " + status
-            );
-        }
-    }
-
     // Getters
     public LinkId getId() {
         return id;
@@ -180,10 +134,6 @@ public class Link {
 
     public UserId getProtectedId() {
         return protectedId;
-    }
-
-    public ConnectionCode getConnectionCode() {
-        return connectionCode;
     }
 
     public LinkStatus getStatus() {

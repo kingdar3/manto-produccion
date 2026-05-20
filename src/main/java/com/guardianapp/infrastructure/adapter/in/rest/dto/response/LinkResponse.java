@@ -12,9 +12,6 @@ public record LinkResponse(
     String hostId,
     String protectedId,
     LinkStatus status,
-    String connectionCode,
-    LocalDateTime codeExpiresAt,
-    long remainingMinutes,
     LocalDateTime createdAt,
     LocalDateTime confirmedAt
 ) {}

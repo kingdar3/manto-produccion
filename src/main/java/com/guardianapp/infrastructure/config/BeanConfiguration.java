@@ -8,7 +8,6 @@ import com.guardianapp.application.service.EmergencyAudioHistoryService;
 import com.guardianapp.application.service.EmergencyHistoryService;
 import com.guardianapp.application.service.FamilyGroupService;
 import com.guardianapp.application.service.FamilyInvitationService;
-import com.guardianapp.application.service.IdentityVerificationService;
 import com.guardianapp.application.service.InvitationService;
 import com.guardianapp.application.service.NotificationTokenService;
 import com.guardianapp.application.service.SmsThreatAlertService;
@@ -23,8 +22,6 @@ import com.guardianapp.domain.port.out.EmergencyAudioStoragePort;
 import com.guardianapp.domain.port.out.EmergencyNotificationPort;
 import com.guardianapp.domain.port.out.FamilyGroupRepositoryPort;
 import com.guardianapp.domain.port.out.FamilyInvitationRepositoryPort;
-import com.guardianapp.domain.port.out.IdentityVerificationNotificationPort;
-import com.guardianapp.domain.port.out.IdentityVerificationRepositoryPort;
 import com.guardianapp.domain.port.out.AlertRepositoryPort;
 import com.guardianapp.domain.port.out.InvitationRepositoryPort;
 import com.guardianapp.domain.port.out.LinkNotificationPort;
@@ -164,18 +161,6 @@ public class BeanConfiguration {
                 userRepository,
                 linkRepository,
                 linkNotificationPort
-        );
-    }
-
-    @Bean
-    public IdentityVerificationService identityVerificationService(
-            IdentityVerificationRepositoryPort verificationRepository,
-            LinkRepositoryPort linkRepository,
-            IdentityVerificationNotificationPort notificationPort) {
-        return new IdentityVerificationService(
-            verificationRepository,
-            linkRepository,
-            notificationPort
         );
     }
 

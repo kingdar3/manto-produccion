@@ -6,10 +6,7 @@
 
 CREATE TABLE public.links (
 	id uuid NOT NULL,
-	code_created_at timestamp(6) NOT NULL,
-	code_expires_at timestamp(6) NOT NULL,
 	confirmed_at timestamp(6) NULL,
-	connection_code varchar(6) NOT NULL,
 	created_at timestamp(6) NOT NULL,
 	host_id uuid NOT NULL,
 	protected_id uuid NOT NULL,
@@ -188,36 +185,6 @@ CREATE TABLE public.family_invitations (
 );
 CREATE INDEX idx_family_invitation_group ON public.family_invitations USING btree (family_group_id);
 CREATE INDEX idx_family_invitation_inviter ON public.family_invitations USING btree (invited_by_user_id);
-
-
--- public.identity_verifications definition
-
--- Drop table
-
--- DROP TABLE public.identity_verifications;
-
-CREATE TABLE public.identity_verifications (
-	id uuid NOT NULL,
-	challenge_code varchar(20) NOT NULL,
-	claimed_person varchar(100) NOT NULL,
-	created_at timestamp(6) NOT NULL,
-	expires_at timestamp(6) NOT NULL,
-	host_user_id uuid NOT NULL,
-	link_id uuid NOT NULL,
-	protected_user_id uuid NOT NULL,
-	resolution_note varchar(500) NULL,
-	resolved_at timestamp(6) NULL,
-	status varchar(20) NOT NULL,
-	CONSTRAINT identity_verifications_pkey PRIMARY KEY (id),
-	CONSTRAINT identity_verifications_status_check CHECK (((status)::text = ANY ((ARRAY['PENDING'::character varying, 'APPROVED'::character varying, 'REJECTED'::character varying, 'EXPIRED'::character varying])::text[]))),
-	CONSTRAINT fk6ra22328ytl217gekebm5p4bm FOREIGN KEY (host_user_id) REFERENCES public.users(id),
-	CONSTRAINT fk7hb8kou364k2rf26xcb4uidv3 FOREIGN KEY (link_id) REFERENCES public.links(id),
-	CONSTRAINT fkfhdyn665islicercydrm5uh6t FOREIGN KEY (protected_user_id) REFERENCES public.users(id)
-);
-CREATE INDEX idx_verification_host_id ON public.identity_verifications USING btree (host_user_id);
-CREATE INDEX idx_verification_link_id ON public.identity_verifications USING btree (link_id);
-CREATE INDEX idx_verification_protected_id ON public.identity_verifications USING btree (protected_user_id);
-CREATE INDEX idx_verification_status ON public.identity_verifications USING btree (status);
 
 
 -- public.invitations definition

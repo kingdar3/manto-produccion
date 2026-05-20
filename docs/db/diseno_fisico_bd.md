@@ -24,7 +24,6 @@
 
 ### Operaciones y alertas
 - `alerts`: alertas de navegacion sospechosa
-- `identity_verifications`: verificacion de llamadas
 - `emergency_alerts`: emergencias (ubicacion, resolucion)
 - `emergency_audio_recordings`: audios asociados
 

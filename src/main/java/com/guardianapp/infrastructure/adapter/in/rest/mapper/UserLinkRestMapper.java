@@ -26,9 +26,6 @@ public interface UserLinkRestMapper {
     @Mapping(target = "id", expression = "java(link.getId().toString())")
     @Mapping(target = "hostId", expression = "java(link.getHostId().toString())")
     @Mapping(target = "protectedId", expression = "java(link.getProtectedId().toString())")
-    @Mapping(target = "connectionCode", expression = "java(link.getConnectionCode().getCode())")
-    @Mapping(target = "codeExpiresAt", expression = "java(link.getConnectionCode().getExpiresAt())")
-    @Mapping(target = "remainingMinutes", expression = "java(link.getConnectionCode().remainingMinutes())")
     LinkResponse toResponse(Link link);
 
     List<LinkResponse> toLinkResponseList(List<Link> links);

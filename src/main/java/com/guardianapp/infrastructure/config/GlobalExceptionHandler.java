@@ -7,7 +7,6 @@ import com.guardianapp.domain.exception.EmergencyAlertException;
 import com.guardianapp.domain.exception.EmergencyAudioException;
 import com.guardianapp.domain.exception.FamilyGroupException;
 import com.guardianapp.domain.exception.FamilyInvitationException;
-import com.guardianapp.domain.exception.IdentityVerificationException;
 import com.guardianapp.domain.exception.InvitationException;
 import com.guardianapp.domain.exception.SmsThreatAlertException;
 import com.guardianapp.domain.exception.UserException;
@@ -243,29 +242,6 @@ public class GlobalExceptionHandler {
             status = HttpStatus.FORBIDDEN;
         } else if (ex.getMessage().contains("expired") || ex.getMessage().contains("cancelled")) {
             status = HttpStatus.GONE;
-        } else {
-            status = HttpStatus.BAD_REQUEST;
-        }
-
-        return ResponseEntity.status(status).body(response);
-    }
-
-    /**
-     * Handles identity verification exceptions.
-     */
-    @ExceptionHandler(IdentityVerificationException.class)
-    public ResponseEntity<ErrorResponse> handleIdentityVerificationException(IdentityVerificationException ex) {
-        log.warn("Identity verification error: {}", ex.getMessage());
-
-        ErrorResponse response = new ErrorResponse(ex.getErrorCode(), ex.getMessage());
-
-        HttpStatus status;
-        if (ex.getMessage().contains("not found")) {
-            status = HttpStatus.NOT_FOUND;
-        } else if (ex.getMessage().contains("expired")) {
-            status = HttpStatus.GONE;
-        } else if (ex.getMessage().contains("not authorized")) {
-            status = HttpStatus.FORBIDDEN;
         } else {
             status = HttpStatus.BAD_REQUEST;
         }

@@ -9,8 +9,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5432/guardian_db
-    username: postgres
-    password: 12345678
+    username: guardian_user
+    password: guardian_pass
     driver-class-name: org.postgresql.Driver
 
   jpa:

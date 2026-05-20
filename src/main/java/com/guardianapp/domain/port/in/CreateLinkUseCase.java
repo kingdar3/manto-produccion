@@ -20,15 +20,6 @@ public interface CreateLinkUseCase {
     Link createRequest(CreateLinkCommand command);
 
     /**
-     * Confirms a link using the connection code.
-     * The protected user enters the code to activate the link.
-     *
-     * @param command Data to confirm the link
-     * @return The confirmed link with ACTIVE status
-     */
-    Link confirm(ConfirmLinkCommand command);
-
-    /**
      * Rejects a link request.
      *
      * @param linkId ID of the link to reject
@@ -63,24 +54,4 @@ public interface CreateLinkUseCase {
         }
     }
 
-    /**
-     * Command to confirm a link.
-     */
-    record ConfirmLinkCommand(
-        LinkId linkId,
-        UserId protectedId,
-        String connectionCode
-    ) {
-        public ConfirmLinkCommand {
-            if (linkId == null) {
-                throw new IllegalArgumentException("Link ID is required");
-            }
-            if (protectedId == null) {
-                throw new IllegalArgumentException("Protected ID is required");
-            }
-            if (connectionCode == null || connectionCode.isBlank()) {
-                throw new IllegalArgumentException("Connection code is required");
-            }
-        }
-    }
 }

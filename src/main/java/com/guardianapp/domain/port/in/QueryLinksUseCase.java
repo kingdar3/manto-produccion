@@ -54,7 +54,7 @@ public interface QueryLinksUseCase {
     List<Link> getActiveLinks(UserId userId);
 
     /**
-     * Gets pending links (awaiting confirmation) for a user.
+     * Gets pending links for a user.
      *
      * @param userId User ID
      * @return List of pending links
