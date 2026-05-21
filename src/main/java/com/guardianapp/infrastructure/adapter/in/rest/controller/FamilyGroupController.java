@@ -6,12 +6,14 @@ import com.guardianapp.domain.model.valueobject.UserId;
 import com.guardianapp.domain.port.in.FamilyGroupUseCase;
 import com.guardianapp.infrastructure.adapter.in.rest.dto.request.AddFamilyMemberRequest;
 import com.guardianapp.infrastructure.adapter.in.rest.dto.request.CreateFamilyGroupRequest;
+import com.guardianapp.infrastructure.adapter.in.rest.dto.request.RenameFamilyGroupRequest;
 import com.guardianapp.infrastructure.adapter.in.rest.dto.response.FamilyGroupResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -88,14 +90,52 @@ public class FamilyGroupController {
             @PathVariable String familyId,
             @PathVariable String memberUserId,
             @RequestHeader("X-User-Id") String requesterUserId) {
+        FamilyGroup group;
+        if (requesterUserId.equals(memberUserId)) {
+            group = familyGroupUseCase.leave(
+                    new FamilyGroupUseCase.LeaveFamilyGroupCommand(
+                            FamilyGroupId.fromString(familyId),
+                            UserId.fromString(memberUserId)
+                    )
+            );
+        } else {
+            group = familyGroupUseCase.removeMember(
+                    new FamilyGroupUseCase.RemoveFamilyMemberCommand(
+                            FamilyGroupId.fromString(familyId),
+                            UserId.fromString(requesterUserId),
+                            UserId.fromString(memberUserId)
+                    )
+            );
+        }
+        return ResponseEntity.ok(FamilyGroupResponse.from(group));
+    }
 
-        FamilyGroup group = familyGroupUseCase.removeMember(
-                new FamilyGroupUseCase.RemoveFamilyMemberCommand(
+    @PutMapping("/{familyId}")
+    public ResponseEntity<FamilyGroupResponse> renameFamilyGroup(
+            @PathVariable String familyId,
+            @RequestHeader("X-User-Id") String requesterUserId,
+            @Valid @RequestBody RenameFamilyGroupRequest request) {
+
+        FamilyGroup group = familyGroupUseCase.rename(
+                new FamilyGroupUseCase.RenameFamilyGroupCommand(
                         FamilyGroupId.fromString(familyId),
                         UserId.fromString(requesterUserId),
-                        UserId.fromString(memberUserId)
+                        request.name()
                 )
         );
         return ResponseEntity.ok(FamilyGroupResponse.from(group));
+    }
+
+    @DeleteMapping("/{familyId}")
+    public ResponseEntity<Void> disbandFamilyGroup(
+            @PathVariable String familyId,
+            @RequestHeader("X-User-Id") String requesterUserId) {
+        familyGroupUseCase.disband(
+                new FamilyGroupUseCase.DisbandFamilyGroupCommand(
+                        FamilyGroupId.fromString(familyId),
+                        UserId.fromString(requesterUserId)
+                )
+        );
+        return ResponseEntity.noContent().build();
     }
 }

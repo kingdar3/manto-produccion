@@ -93,6 +93,14 @@ public class FamilyGroupRepositoryAdapter implements FamilyGroupRepositoryPort {
                 .toList();
     }
 
+    @Override
+    @Transactional
+    public void deleteById(FamilyGroupId id) {
+        memberJpaRepository.deleteByFamilyGroupId(id.getValue());
+        memberJpaRepository.flush();
+        familyGroupJpaRepository.deleteById(id.getValue());
+    }
+
     private FamilyGroup toDomain(FamilyGroupEntity entity) {
         List<FamilyGroupMember> members = memberJpaRepository.findByFamilyGroupId(entity.getId())
                 .stream()

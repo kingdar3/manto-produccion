@@ -33,6 +33,15 @@ public class BlacklistUrlService implements BlacklistUrlUseCase {
         return repository.save(normalizedUrl);
     }
 
+    @Override
+    public void remove(RemoveBlacklistUrlCommand command) {
+        String normalizedUrl = normalize(command.url());
+        if (!isValidHttpUrl(normalizedUrl)) {
+            throw BlacklistUrlException.invalidUrl(normalizedUrl);
+        }
+        repository.removeByUrl(normalizedUrl);
+    }
+
     private String normalize(String url) {
         return url == null ? "" : url.trim();
     }

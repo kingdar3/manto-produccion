@@ -104,6 +104,17 @@ public class LinkRepositoryAdapter implements LinkRepositoryPort {
     }
 
     @Override
+    public List<Link> findActiveByProtected(UserId protectedId) {
+        return jpaRepository.findByProtectedIdAndStatus(
+                protectedId.getValue(),
+                LinkStatus.ACTIVE
+            )
+            .stream()
+            .map(mapper::toDomain)
+            .toList();
+    }
+
+    @Override
     public void delete(LinkId id) {
         jpaRepository.deleteById(id.getValue());
     }

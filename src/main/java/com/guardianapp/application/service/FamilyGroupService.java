@@ -75,6 +75,54 @@ public class FamilyGroupService implements FamilyGroupUseCase {
     }
 
     @Override
+    public FamilyGroup leave(LeaveFamilyGroupCommand command) {
+        FamilyGroup group = familyGroupRepository.findById(command.familyGroupId())
+                .orElseThrow(() -> FamilyGroupException.notFound(command.familyGroupId().toString()));
+
+        try {
+            group.removeMember(command.memberUserId(), command.memberUserId());
+        } catch (IllegalStateException ex) {
+            throw mapStateException(command.memberUserId(), ex);
+        }
+
+        return familyGroupRepository.save(group);
+    }
+
+    public void disband(FamilyGroupId familyGroupId, UserId requesterUserId) {
+        FamilyGroup group = familyGroupRepository.findById(familyGroupId)
+                .orElseThrow(() -> FamilyGroupException.notFound(familyGroupId.toString()));
+        if (!group.isPrimaryHost(requesterUserId)) {
+            throw FamilyGroupException.notAuthorized(requesterUserId.toString());
+        }
+        familyGroupRepository.deleteById(familyGroupId);
+    }
+
+    @Override
+
+    public FamilyGroup rename(RenameFamilyGroupCommand command) {
+        FamilyGroup group = familyGroupRepository.findById(command.familyGroupId())
+                .orElseThrow(() -> FamilyGroupException.notFound(command.familyGroupId().toString()));
+
+        try {
+            group.rename(command.requesterUserId(), command.name());
+        } catch (IllegalStateException ex) {
+            throw FamilyGroupException.notAuthorized(command.requesterUserId().toString());
+        }
+
+        return familyGroupRepository.save(group);
+    }
+
+    @Override
+    public void disband(DisbandFamilyGroupCommand command) {
+        FamilyGroup group = familyGroupRepository.findById(command.familyGroupId())
+                .orElseThrow(() -> FamilyGroupException.notFound(command.familyGroupId().toString()));
+        if (!group.isPrimaryHost(command.requesterUserId())) {
+            throw FamilyGroupException.notAuthorized(command.requesterUserId().toString());
+        }
+        familyGroupRepository.deleteById(command.familyGroupId());
+    }
+
+    @Override
     public Optional<FamilyGroup> getById(FamilyGroupId familyGroupId) {
         return familyGroupRepository.findById(familyGroupId);
     }

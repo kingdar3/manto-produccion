@@ -10,4 +10,6 @@ public interface BlacklistUrlRepositoryPort {
     boolean existsByUrl(String url);
 
     BlacklistUrl save(String url);
+
+    void removeByUrl(String url);
 }

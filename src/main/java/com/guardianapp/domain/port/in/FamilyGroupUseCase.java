@@ -19,6 +19,12 @@ public interface FamilyGroupUseCase {
 
     FamilyGroup removeMember(RemoveFamilyMemberCommand command);
 
+    FamilyGroup leave(LeaveFamilyGroupCommand command);
+
+    FamilyGroup rename(RenameFamilyGroupCommand command);
+
+    void disband(DisbandFamilyGroupCommand command);
+
     Optional<FamilyGroup> getById(FamilyGroupId familyGroupId);
 
     List<FamilyGroup> getByUser(UserId userId);
@@ -76,6 +82,52 @@ public interface FamilyGroupUseCase {
             }
             if (memberUserId == null) {
                 throw new IllegalArgumentException("Member user ID is required");
+            }
+        }
+    }
+
+    record LeaveFamilyGroupCommand(
+            FamilyGroupId familyGroupId,
+            UserId memberUserId
+    ) {
+        public LeaveFamilyGroupCommand {
+            if (familyGroupId == null) {
+                throw new IllegalArgumentException("Family group ID is required");
+            }
+            if (memberUserId == null) {
+                throw new IllegalArgumentException("Member user ID is required");
+            }
+        }
+    }
+
+    record RenameFamilyGroupCommand(
+            FamilyGroupId familyGroupId,
+            UserId requesterUserId,
+            String name
+    ) {
+        public RenameFamilyGroupCommand {
+            if (familyGroupId == null) {
+                throw new IllegalArgumentException("Family group ID is required");
+            }
+            if (requesterUserId == null) {
+                throw new IllegalArgumentException("Requester user ID is required");
+            }
+            if (name == null || name.isBlank()) {
+                throw new IllegalArgumentException("Family group name is required");
+            }
+        }
+    }
+
+    record DisbandFamilyGroupCommand(
+            FamilyGroupId familyGroupId,
+            UserId requesterUserId
+    ) {
+        public DisbandFamilyGroupCommand {
+            if (familyGroupId == null) {
+                throw new IllegalArgumentException("Family group ID is required");
+            }
+            if (requesterUserId == null) {
+                throw new IllegalArgumentException("Requester user ID is required");
             }
         }
     }

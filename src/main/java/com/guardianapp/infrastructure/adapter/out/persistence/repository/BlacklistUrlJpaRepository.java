@@ -13,4 +13,6 @@ import java.util.UUID;
 public interface BlacklistUrlJpaRepository extends JpaRepository<BlacklistUrlEntity, UUID> {
 
     boolean existsByUrlIgnoreCase(String url);
+
+    void deleteByUrlIgnoreCase(String url);
 }

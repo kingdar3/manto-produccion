@@ -30,4 +30,9 @@ public class BlacklistUrlRepositoryAdapter implements BlacklistUrlRepositoryPort
         );
         return new BlacklistUrl(saved.getId(), saved.getUrl(), saved.getCreatedAt());
     }
+
+    @Override
+    public void removeByUrl(String url) {
+        repository.deleteByUrlIgnoreCase(url);
+    }
 }

@@ -19,4 +19,6 @@ public interface FamilyGroupRepositoryPort {
     List<FamilyGroup> findByUserId(UserId userId);
 
     List<FamilyGroup> findByPrimaryHostUserId(UserId userId);
+
+    void deleteById(FamilyGroupId id);
 }
