@@ -58,11 +58,21 @@ class BlacklistUrlControllerTest {
     static class StubConfig {
         @Bean
         BlacklistUrlUseCase blacklistUrlUseCase() {
-            return command -> new BlacklistUrl(
-                UUID.fromString("00000000-0000-0000-0000-000000000001"),
-                command.url().trim(),
-                LocalDateTime.now()
-            );
+            return new BlacklistUrlUseCase() {
+                @Override
+                public BlacklistUrl register(RegisterBlacklistUrlCommand command) {
+                    return new BlacklistUrl(
+                            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+                            command.url().trim(),
+                            LocalDateTime.now()
+                    );
+                }
+
+                @Override
+                public void remove(RemoveBlacklistUrlCommand command) {
+                    // no-op for controller test
+                }
+            };
         }
     }
 }

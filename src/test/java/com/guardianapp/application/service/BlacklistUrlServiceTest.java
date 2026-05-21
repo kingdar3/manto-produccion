@@ -62,5 +62,10 @@ class BlacklistUrlServiceTest {
             urls.add(url);
             return new BlacklistUrl(UUID.randomUUID(), url, LocalDateTime.now());
         }
+
+        @Override
+        public void removeByUrl(String url) {
+            urls.removeIf(saved -> saved.equalsIgnoreCase(url));
+        }
     }
 }

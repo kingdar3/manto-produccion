@@ -9,27 +9,27 @@ import com.guardianapp.application.service.EmergencyHistoryService;
 import com.guardianapp.application.service.FamilyGroupService;
 import com.guardianapp.application.service.FamilyInvitationService;
 import com.guardianapp.application.service.InvitationService;
+import com.guardianapp.application.service.LinkService;
 import com.guardianapp.application.service.NotificationTokenService;
 import com.guardianapp.application.service.SmsThreatAlertService;
 import com.guardianapp.application.service.ThreatAnalysisService;
 import com.guardianapp.application.service.UserService;
-import com.guardianapp.application.service.LinkService;
-import com.guardianapp.domain.port.out.DeviceTokenRepositoryPort;
+import com.guardianapp.domain.port.out.AlertRepositoryPort;
 import com.guardianapp.domain.port.out.BlacklistUrlRepositoryPort;
+import com.guardianapp.domain.port.out.DeviceTokenRepositoryPort;
 import com.guardianapp.domain.port.out.EmergencyAlertRepositoryPort;
 import com.guardianapp.domain.port.out.EmergencyAudioRepositoryPort;
 import com.guardianapp.domain.port.out.EmergencyAudioStoragePort;
 import com.guardianapp.domain.port.out.EmergencyNotificationPort;
 import com.guardianapp.domain.port.out.FamilyGroupRepositoryPort;
 import com.guardianapp.domain.port.out.FamilyInvitationRepositoryPort;
-import com.guardianapp.domain.port.out.AlertRepositoryPort;
 import com.guardianapp.domain.port.out.InvitationRepositoryPort;
 import com.guardianapp.domain.port.out.LinkNotificationPort;
-import com.guardianapp.domain.port.out.UserRepositoryPort;
 import com.guardianapp.domain.port.out.LinkRepositoryPort;
 import com.guardianapp.domain.port.out.SafeBrowsingPort;
 import com.guardianapp.domain.port.out.SmsThreatAlertRepositoryPort;
 import com.guardianapp.domain.port.out.TrustedDomainRepositoryPort;
+import com.guardianapp.domain.port.out.UserRepositoryPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -40,19 +40,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class BeanConfiguration {
 
-    /**
-     * Creates the UserService singleton.
-     * This service implements multiple use cases.
-     */
     @Bean
     public UserService userService(UserRepositoryPort userRepository) {
         return new UserService(userRepository);
     }
 
-    /**
-     * Creates the LinkService singleton.
-     * This service implements multiple use cases.
-     */
     @Bean
     public LinkService linkService(
             LinkRepositoryPort linkRepository,
@@ -61,9 +53,6 @@ public class BeanConfiguration {
         return new LinkService(linkRepository, userRepository, linkNotificationPort);
     }
 
-    /**
-     * Creates the InvitationService singleton.
-     */
     @Bean
     public InvitationService invitationService(
             InvitationRepositoryPort invitationRepository,
@@ -80,9 +69,6 @@ public class BeanConfiguration {
         );
     }
 
-    /**
-     * Creates the AlertService singleton.
-     */
     @Bean
     public AlertService alertService(
             AlertRepositoryPort alertRepository,
@@ -144,8 +130,9 @@ public class BeanConfiguration {
     @Bean
     public FamilyGroupService familyGroupService(
             FamilyGroupRepositoryPort familyGroupRepository,
-            UserRepositoryPort userRepository) {
-        return new FamilyGroupService(familyGroupRepository, userRepository);
+            UserRepositoryPort userRepository,
+            LinkRepositoryPort linkRepository) {
+        return new FamilyGroupService(familyGroupRepository, userRepository, linkRepository);
     }
 
     @Bean
@@ -179,5 +166,4 @@ public class BeanConfiguration {
                                                        TrustedDomainRepositoryPort trustedDomainRepositoryPort) {
         return new ThreatAnalysisService(safeBrowsingPort, trustedDomainRepositoryPort);
     }
-
 }
