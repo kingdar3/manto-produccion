@@ -32,3 +32,7 @@ build/
 ### VS Code ###
 .vscode/
 ".opencode/" 
+    
+
+# Local secrets
+secrets/

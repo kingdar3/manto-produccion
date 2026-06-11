@@ -11,8 +11,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Firebase Admin SDK configuration for server-side FCM.
@@ -25,12 +28,9 @@ public class FirebaseAdminConfig {
     @Bean
     @ConditionalOnProperty(prefix = "firebase", name = "enabled", havingValue = "true")
     public FirebaseMessaging firebaseMessaging(
+            @Value("${firebase.service-account-json:}") String serviceAccountJson,
             @Value("${firebase.service-account-path:}") String serviceAccountPath) {
-        if (serviceAccountPath == null || serviceAccountPath.isBlank()) {
-            throw new IllegalStateException("firebase.service-account-path is required when firebase.enabled=true");
-        }
-
-        try (FileInputStream serviceAccount = new FileInputStream(serviceAccountPath)) {
+        try (InputStream serviceAccount = openServiceAccountStream(serviceAccountJson, serviceAccountPath)) {
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
@@ -42,5 +42,15 @@ public class FirebaseAdminConfig {
         } catch (IOException ex) {
             throw new IllegalStateException("Failed to initialize Firebase Admin", ex);
         }
+    }
+
+    private InputStream openServiceAccountStream(String serviceAccountJson, String serviceAccountPath) throws IOException {
+        if (serviceAccountJson != null && !serviceAccountJson.isBlank()) {
+            return new ByteArrayInputStream(serviceAccountJson.getBytes(StandardCharsets.UTF_8));
+        }
+        if (serviceAccountPath != null && !serviceAccountPath.isBlank()) {
+            return new FileInputStream(serviceAccountPath);
+        }
+        throw new IllegalStateException("Firebase is enabled but neither firebase.service-account-json nor firebase.service-account-path is configured");
     }
 }

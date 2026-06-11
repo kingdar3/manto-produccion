@@ -33,8 +33,9 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 firebase:
-  enabled: true
-  service-account-path: ${FIREBASE_SERVICE_ACCOUNT_PATH:secrets/manto-app-ade75-firebase-adminsdk-fbsvc-7118566358.json}
+  enabled: ${FIREBASE_ENABLED:true}
+  service-account-json: ${FIREBASE_SERVICE_ACCOUNT_JSON:}
+  service-account-path: ${FIREBASE_SERVICE_ACCOUNT_PATH:}
 
 google:
   safe-browsing:
