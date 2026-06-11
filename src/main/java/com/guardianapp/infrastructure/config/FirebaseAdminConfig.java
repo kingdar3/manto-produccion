@@ -49,7 +49,12 @@ public class FirebaseAdminConfig {
             return new ByteArrayInputStream(serviceAccountJson.getBytes(StandardCharsets.UTF_8));
         }
         if (serviceAccountPath != null && !serviceAccountPath.isBlank()) {
-            return new FileInputStream(serviceAccountPath);
+            String trimmedPath = serviceAccountPath.trim();
+            if (trimmedPath.startsWith("{")) {
+                log.warn("firebase.service-account-path contains inline JSON; use firebase.service-account-json instead");
+                return new ByteArrayInputStream(trimmedPath.getBytes(StandardCharsets.UTF_8));
+            }
+            return new FileInputStream(trimmedPath);
         }
         throw new IllegalStateException("Firebase is enabled but neither firebase.service-account-json nor firebase.service-account-path is configured");
     }

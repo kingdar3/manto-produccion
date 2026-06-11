@@ -16,6 +16,9 @@ import com.guardianapp.domain.port.out.FamilyInvitationRepositoryPort;
 import com.guardianapp.domain.port.out.LinkNotificationPort;
 import com.guardianapp.domain.port.out.LinkRepositoryPort;
 import com.guardianapp.domain.port.out.UserRepositoryPort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +27,8 @@ import java.util.Optional;
  * Application service implementing family invitation use cases.
  */
 public class FamilyInvitationService implements FamilyInvitationUseCase {
+
+    private static final Logger log = LoggerFactory.getLogger(FamilyInvitationService.class);
 
     private final FamilyInvitationRepositoryPort familyInvitationRepository;
     private final FamilyGroupRepositoryPort familyGroupRepository;
@@ -74,6 +79,7 @@ public class FamilyInvitationService implements FamilyInvitationUseCase {
     }
 
     @Override
+    @Transactional
     public FamilyGroup accept(AcceptFamilyInvitationCommand command) {
         FamilyInvitation invitation = familyInvitationRepository.findByToken(command.token())
                 .orElseThrow(() -> FamilyInvitationException.notFound(command.token()));
@@ -116,14 +122,17 @@ public class FamilyInvitationService implements FamilyInvitationUseCase {
 
         FamilyGroup savedGroup = groupChanged ? familyGroupRepository.save(group) : group;
 
-        // Only protected users need a monitoring link.
         if (invitation.getTargetRole() == FamilyMemberRole.PROTECTED) {
             UserId hostId = savedGroup.getPrimaryHostUserId();
             UserId protectedId = command.acceptedByUserId();
             if (!hostId.equals(protectedId) && !linkRepository.existsActiveOrPending(hostId, protectedId)) {
                 Link link = Link.createRequest(hostId, protectedId);
                 Link savedLink = linkRepository.save(link);
-                linkNotificationPort.notifyLinkPending(savedLink);
+                try {
+                    linkNotificationPort.notifyLinkPending(savedLink);
+                } catch (Exception ex) {
+                    log.warn("Family invitation accepted but link notification failed: {}", ex.getMessage());
+                }
             }
         }
 

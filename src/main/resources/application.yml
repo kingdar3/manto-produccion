@@ -24,7 +24,7 @@ spring:
     open-in-view: false
 
 server:
-  port: 8081
+  port: ${SERVER_PORT:8081}
 
 logging:
   level:
@@ -40,7 +40,7 @@ firebase:
 google:
   safe-browsing:
     enabled: ${GOOGLE_SAFE_BROWSING_ENABLED:true}
-    api-key: ${GOOGLE_SAFE_BROWSING_API_KEY:AIzaSyBtBXvklHmPfUTsTDJt88Vq1HKn_QGZreo}
+    api-key: ${GOOGLE_SAFE_BROWSING_API_KEY:}
     base-url: ${GOOGLE_SAFE_BROWSING_BASE_URL:https://safebrowsing.googleapis.com}
     client-id: ${GOOGLE_SAFE_BROWSING_CLIENT_ID:guardian-api}
     client-version: ${GOOGLE_SAFE_BROWSING_CLIENT_VERSION:1.0.0}

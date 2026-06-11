@@ -16,6 +16,9 @@ import com.guardianapp.domain.port.out.InvitationRepositoryPort;
 import com.guardianapp.domain.port.out.LinkNotificationPort;
 import com.guardianapp.domain.port.out.LinkRepositoryPort;
 import com.guardianapp.domain.port.out.UserRepositoryPort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +28,8 @@ import java.util.Optional;
  * Manages the invitation flow for creating links between users.
  */
 public class InvitationService implements InvitationUseCase {
+
+    private static final Logger log = LoggerFactory.getLogger(InvitationService.class);
 
     private final InvitationRepositoryPort invitationRepository;
     private final UserRepositoryPort userRepository;
@@ -46,7 +51,6 @@ public class InvitationService implements InvitationUseCase {
 
     @Override
     public Invitation create(CreateInvitationCommand command) {
-        // Validate host exists and is active
         User host = userRepository.findById(command.hostId())
             .orElseThrow(() -> InvitationException.hostNotFound(command.hostId().toString()));
 
@@ -54,25 +58,19 @@ public class InvitationService implements InvitationUseCase {
             throw UserException.userInactive(host.getName());
         }
 
-        // Create invitation with host name for display
         Invitation invitation = Invitation.create(command.hostId(), host.getName());
-
-        // Persist and return
         return invitationRepository.save(invitation);
     }
 
     @Override
     public Optional<Invitation> getByToken(String token) {
         Optional<Invitation> invitationOpt = invitationRepository.findByToken(token);
-        
-        // Check if expired and update status if needed
         invitationOpt.ifPresent(invitation -> {
             if (invitation.isExpired() && invitation.getStatus() == InvitationStatus.PENDING) {
                 invitation.markAsExpired();
                 invitationRepository.save(invitation);
             }
         });
-        
         return invitationOpt;
     }
 
@@ -82,12 +80,11 @@ public class InvitationService implements InvitationUseCase {
     }
 
     @Override
+    @Transactional
     public Link accept(AcceptInvitationCommand command) {
-        // Find invitation by token
         Invitation invitation = invitationRepository.findByToken(command.token())
             .orElseThrow(() -> InvitationException.notFound(command.token()));
 
-        // Validate protected user exists and is active
         User protectedUser = userRepository.findById(command.protectedUserId())
             .orElseThrow(() -> UserException.notFound(command.protectedUserId().toString()));
 
@@ -95,12 +92,10 @@ public class InvitationService implements InvitationUseCase {
             throw UserException.userInactive(protectedUser.getName());
         }
 
-        // Cannot accept your own invitation
         if (invitation.getHostId().equals(command.protectedUserId())) {
             throw InvitationException.cannotInviteSelf();
         }
 
-        // Check invitation is still valid
         if (invitation.isExpired()) {
             invitation.markAsExpired();
             invitationRepository.save(invitation);
@@ -115,26 +110,21 @@ public class InvitationService implements InvitationUseCase {
             throw InvitationException.cancelled(command.token());
         }
 
-        // Check no active or pending link exists between both users
         if (linkRepository.existsActiveOrPending(invitation.getHostId(), command.protectedUserId())) {
             throw LinkException.alreadyExists();
         }
 
-        // Accept the invitation
         invitation.accept(command.protectedUserId());
         invitationRepository.save(invitation);
 
-        // Create an active link (PIN removed; single-step confirmation)
-        Link link = Link.createRequest(
-            invitation.getHostId(),
-            command.protectedUserId()
-        );
-
-        // Persist and return the link
+        Link link = Link.createRequest(invitation.getHostId(), command.protectedUserId());
         Link saved = linkRepository.save(link);
-        linkNotificationPort.notifyLinkActivated(saved);
+        try {
+            linkNotificationPort.notifyLinkActivated(saved);
+        } catch (Exception ex) {
+            log.warn("Invitation accepted but link notification failed: {}", ex.getMessage());
+        }
 
-        // Auto-enroll protected user into host's primary family group when available
         List<FamilyGroup> hostGroups = familyGroupRepository.findByPrimaryHostUserId(invitation.getHostId());
         if (!hostGroups.isEmpty()) {
             FamilyGroup group = hostGroups.get(0);
@@ -152,9 +142,7 @@ public class InvitationService implements InvitationUseCase {
         Invitation invitation = invitationRepository.findById(invitationId)
             .orElseThrow(() -> InvitationException.notFoundById(invitationId.toString()));
 
-        // Cancel (validates host ownership internally)
         invitation.cancel(hostId);
-
         return invitationRepository.save(invitation);
     }
 

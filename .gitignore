@@ -36,3 +36,8 @@ build/
 
 # Local secrets
 secrets/
+
+# Local env files
+.env
+.env.*
+!.env.example
