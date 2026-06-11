@@ -88,6 +88,8 @@ public interface LinkRepositoryPort {
      */
     List<Link> findActiveByHost(UserId hostId);
 
+    List<Link> findActiveByProtected(UserId protectedId);
+
     /**
      * Deletes a link by ID.
      *

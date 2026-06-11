@@ -4,7 +4,7 @@ package com.guardianapp.domain.enums;
  * Possible states of a link between a Host and a Protected user.
  */
 public enum LinkStatus {
-    PENDING("Pending", "Waiting for protected user confirmation"),
+    PENDING("Pending", "Pending link"),
     ACTIVE("Active", "Link confirmed and working"),
     REJECTED("Rejected", "Protected user rejected the request"),
     CANCELLED("Cancelled", "Link was cancelled by one of the parties");

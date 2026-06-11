@@ -102,8 +102,7 @@ public class InvitationController {
 
     /**
      * Accepts an invitation.
-     * The protected user accepts the invitation, creating a PENDING link.
-     * Then the host must share the PIN code for final confirmation.
+     * The protected user accepts the invitation, creating an ACTIVE link.
      * 
      * POST /api/v1/invitations/{token}/accept
      * Header: X-User-Id (Protected user ID)

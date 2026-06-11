@@ -4,10 +4,8 @@ import com.guardianapp.domain.model.Link;
 import com.guardianapp.domain.model.valueobject.UserId;
 import com.guardianapp.domain.model.valueobject.LinkId;
 import com.guardianapp.domain.port.in.CreateLinkUseCase;
-import com.guardianapp.domain.port.in.CreateLinkUseCase.ConfirmLinkCommand;
 import com.guardianapp.domain.port.in.CreateLinkUseCase.CreateLinkCommand;
 import com.guardianapp.domain.port.in.QueryLinksUseCase;
-import com.guardianapp.infrastructure.adapter.in.rest.dto.request.ConfirmLinkRequest;
 import com.guardianapp.infrastructure.adapter.in.rest.dto.request.CreateLinkRequest;
 import com.guardianapp.infrastructure.adapter.in.rest.dto.response.LinkResponse;
 import com.guardianapp.infrastructure.adapter.in.rest.mapper.UserLinkRestMapper;
@@ -118,31 +116,6 @@ public class LinkController {
         LinkResponse response = restMapper.toResponse(link);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    /**
-     * Confirms a link using the connection code.
-     * The protected user enters the code to activate the link.
-     * 
-     * POST /api/v1/links/{linkId}/confirm
-     * Header: X-User-Id (Protected user ID)
-     */
-    @PostMapping("/{linkId}/confirm")
-    public ResponseEntity<LinkResponse> confirm(
-            @PathVariable String linkId,
-            @RequestHeader("X-User-Id") String protectedId,
-            @Valid @RequestBody ConfirmLinkRequest request) {
-
-        ConfirmLinkCommand command = new ConfirmLinkCommand(
-            LinkId.fromString(linkId),
-            UserId.fromString(protectedId),
-            request.connectionCode()
-        );
-
-        Link link = createLinkUseCase.confirm(command);
-        LinkResponse response = restMapper.toResponse(link);
-
-        return ResponseEntity.ok(response);
     }
 
     /**

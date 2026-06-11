@@ -36,4 +36,6 @@ public interface LinkJpaRepository extends JpaRepository<LinkEntity, UUID> {
     List<LinkEntity> findByStatus(LinkStatus status);
 
     List<LinkEntity> findByHostIdAndStatus(UUID hostId, LinkStatus status);
+
+    List<LinkEntity> findByProtectedIdAndStatus(UUID protectedId, LinkStatus status);
 }

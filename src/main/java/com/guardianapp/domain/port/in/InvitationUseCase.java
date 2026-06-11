@@ -42,11 +42,10 @@ public interface InvitationUseCase {
 
     /**
      * Accepts an invitation.
-     * The protected user accepts and a link is created with PENDING status.
-     * Then the host shares the PIN code to confirm.
+     * The protected user accepts and a link is created with ACTIVE status.
      *
      * @param command Data to accept the invitation
-     * @return The created link (with PENDING status, awaiting PIN confirmation)
+     * @return The created link (ACTIVE)
      */
     Link accept(AcceptInvitationCommand command);
 

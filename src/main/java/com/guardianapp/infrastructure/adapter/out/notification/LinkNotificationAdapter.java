@@ -35,12 +35,7 @@ public class LinkNotificationAdapter implements LinkNotificationPort {
 
     @Override
     public void notifyLinkPending(Link link) {
-        LinkEvent event = LinkEvent.from(link, "LINK_PENDING");
-        messagingTemplate.convertAndSend("/topic/host/" + link.getHostId() + "/links", event);
-        messagingTemplate.convertAndSend("/topic/protected/" + link.getProtectedId() + "/links", event);
-
-        sendFcmToUser(link.getHostId(), "Nuevo vínculo pendiente", "Tu familiar aceptó el código. Comparte el PIN de 6 dígitos.", event);
-        sendFcmToUser(link.getProtectedId(), "Vinculación iniciada", "Ahora ingresa el PIN de 6 dígitos para finalizar.", event);
+        notifyLinkActivated(link);
     }
 
     @Override
@@ -66,7 +61,6 @@ public class LinkNotificationAdapter implements LinkNotificationPort {
                     .putData("hostUserId", event.hostUserId())
                     .putData("protectedUserId", event.protectedUserId())
                     .putData("status", event.status())
-                    .putData("connectionCode", event.connectionCode() == null ? "" : event.connectionCode())
                     .putData("title", title)
                     .putData("body", body)
                     .build();
@@ -82,8 +76,7 @@ public class LinkNotificationAdapter implements LinkNotificationPort {
         String linkId,
         String hostUserId,
         String protectedUserId,
-        String status,
-        String connectionCode
+        String status
     ) {
         static LinkEvent from(Link link, String type) {
             return new LinkEvent(
@@ -91,8 +84,7 @@ public class LinkNotificationAdapter implements LinkNotificationPort {
                 link.getId().toString(),
                 link.getHostId().toString(),
                 link.getProtectedId().toString(),
-                link.getStatus().name(),
-                link.getConnectionCode() != null ? link.getConnectionCode().getCode() : null
+                link.getStatus().name()
             );
         }
     }

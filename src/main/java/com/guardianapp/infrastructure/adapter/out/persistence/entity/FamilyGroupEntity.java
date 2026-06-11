@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -38,6 +40,10 @@ public class FamilyGroupEntity {
 
     @Column(name = "primary_host_user_id", nullable = false)
     private UUID primaryHostUserId;
+
+    @ManyToOne
+    @JoinColumn(name = "primary_host_user_id", insertable = false, updatable = false)
+    private UserEntity primaryHostUser;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

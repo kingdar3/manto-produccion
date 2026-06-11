@@ -53,6 +53,12 @@ public class EmergencyAlertService implements EmergencyAlertUseCase {
                     command.linkId().toString());
         }
 
+        if (!isProtectedStillInHostFamily(link.getHostId(), command.protectedUserId())) {
+            throw EmergencyAlertException.protectedUserNotInFamily(
+                    command.protectedUserId().toString(),
+                    link.getHostId().toString());
+        }
+
         EmergencyAlert emergencyAlert = EmergencyAlert.create(
                 command.linkId(),
                 command.protectedUserId(),
@@ -119,5 +125,15 @@ public class EmergencyAlertService implements EmergencyAlertUseCase {
     @Override
     public List<EmergencyAlert> getByProtectedUser(UserId protectedUserId) {
         return emergencyAlertRepository.findByProtectedUserId(protectedUserId);
+    }
+
+    private boolean isProtectedStillInHostFamily(UserId hostUserId, UserId protectedUserId) {
+        List<FamilyGroup> groups = familyGroupRepository.findByUserId(protectedUserId);
+        for (FamilyGroup group : groups) {
+            if (group.hasMember(protectedUserId) && group.isHost(hostUserId)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

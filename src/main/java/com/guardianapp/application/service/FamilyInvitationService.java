@@ -116,10 +116,8 @@ public class FamilyInvitationService implements FamilyInvitationUseCase {
 
         FamilyGroup savedGroup = groupChanged ? familyGroupRepository.save(group) : group;
 
-        // Start the linking flow as well.
-        // PROTECTED needs the PIN to activate protection; SECONDARY_HOST needs the PIN to access host dashboard.
-        if (invitation.getTargetRole() == FamilyMemberRole.PROTECTED
-                || invitation.getTargetRole() == FamilyMemberRole.SECONDARY_HOST) {
+        // Only protected users need a monitoring link.
+        if (invitation.getTargetRole() == FamilyMemberRole.PROTECTED) {
             UserId hostId = savedGroup.getPrimaryHostUserId();
             UserId protectedId = command.acceptedByUserId();
             if (!hostId.equals(protectedId) && !linkRepository.existsActiveOrPending(hostId, protectedId)) {

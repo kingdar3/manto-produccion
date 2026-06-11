@@ -124,7 +124,7 @@ public class InvitationService implements InvitationUseCase {
         invitation.accept(command.protectedUserId());
         invitationRepository.save(invitation);
 
-        // Create a link with PENDING status (awaiting PIN confirmation)
+        // Create an active link (PIN removed; single-step confirmation)
         Link link = Link.createRequest(
             invitation.getHostId(),
             command.protectedUserId()
@@ -132,7 +132,7 @@ public class InvitationService implements InvitationUseCase {
 
         // Persist and return the link
         Link saved = linkRepository.save(link);
-        linkNotificationPort.notifyLinkPending(saved);
+        linkNotificationPort.notifyLinkActivated(saved);
 
         // Auto-enroll protected user into host's primary family group when available
         List<FamilyGroup> hostGroups = familyGroupRepository.findByPrimaryHostUserId(invitation.getHostId());

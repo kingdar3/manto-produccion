@@ -73,30 +73,7 @@ public class LinkService implements CreateLinkUseCase, QueryLinksUseCase {
 
         // Persist and return
         Link saved = linkRepository.save(link);
-        // A freshly created link starts in PENDING.
-        linkNotificationPort.notifyLinkPending(saved);
-        return saved;
-    }
-
-    @Override
-    public Link confirm(ConfirmLinkCommand command) {
-        // Find link
-        Link link = linkRepository.findById(command.linkId())
-            .orElseThrow(() -> LinkException.notFound(command.linkId().toString()));
-
-        // Verify the one confirming is the protected user
-        if (!link.isProtected(command.protectedId())) {
-            throw LinkException.operationNotAllowed(
-                "Only the protected user can confirm the link"
-            );
-        }
-
-        // Confirm link (validations are in domain)
-        link.confirm(command.connectionCode());
-
-        // Persist and return
-        Link saved = linkRepository.save(link);
-        // Notify both parties so the Host UI can update automatically.
+        // With single-step flow, the link is active immediately.
         linkNotificationPort.notifyLinkActivated(saved);
         return saved;
     }

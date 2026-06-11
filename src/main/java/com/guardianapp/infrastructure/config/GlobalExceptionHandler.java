@@ -1,13 +1,14 @@
 package com.guardianapp.infrastructure.config;
 
 import com.guardianapp.domain.exception.AlertException;
+import com.guardianapp.domain.exception.BlacklistUrlException;
 import com.guardianapp.domain.exception.DomainException;
 import com.guardianapp.domain.exception.EmergencyAlertException;
 import com.guardianapp.domain.exception.EmergencyAudioException;
 import com.guardianapp.domain.exception.FamilyGroupException;
 import com.guardianapp.domain.exception.FamilyInvitationException;
-import com.guardianapp.domain.exception.IdentityVerificationException;
 import com.guardianapp.domain.exception.InvitationException;
+import com.guardianapp.domain.exception.SmsThreatAlertException;
 import com.guardianapp.domain.exception.UserException;
 import com.guardianapp.domain.exception.LinkException;
 import com.guardianapp.infrastructure.adapter.in.rest.dto.response.ErrorResponse;
@@ -127,6 +128,42 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles blacklist URL exceptions.
+     */
+    @ExceptionHandler(BlacklistUrlException.class)
+    public ResponseEntity<ErrorResponse> handleBlacklistUrlException(BlacklistUrlException ex) {
+        log.warn("Blacklist URL error: {}", ex.getMessage());
+
+        ErrorResponse response = new ErrorResponse(ex.getErrorCode(), ex.getMessage());
+        HttpStatus status = ex.getMessage().contains("already exists")
+            ? HttpStatus.CONFLICT
+            : HttpStatus.BAD_REQUEST;
+
+        return ResponseEntity.status(status).body(response);
+    }
+
+    /**
+     * Handles SMS threat alert exceptions.
+     */
+    @ExceptionHandler(SmsThreatAlertException.class)
+    public ResponseEntity<ErrorResponse> handleSmsThreatAlertException(SmsThreatAlertException ex) {
+        log.warn("SMS threat alert error: {}", ex.getMessage());
+
+        ErrorResponse response = new ErrorResponse(ex.getErrorCode(), ex.getMessage());
+
+        HttpStatus status;
+        if (ex.getMessage().contains("not found")) {
+            status = HttpStatus.NOT_FOUND;
+        } else if (ex.getMessage().contains("not authorized")) {
+            status = HttpStatus.FORBIDDEN;
+        } else {
+            status = HttpStatus.BAD_REQUEST;
+        }
+
+        return ResponseEntity.status(status).body(response);
+    }
+
+    /**
      * Handles emergency alert exceptions.
      */
     @ExceptionHandler(EmergencyAlertException.class)
@@ -205,29 +242,6 @@ public class GlobalExceptionHandler {
             status = HttpStatus.FORBIDDEN;
         } else if (ex.getMessage().contains("expired") || ex.getMessage().contains("cancelled")) {
             status = HttpStatus.GONE;
-        } else {
-            status = HttpStatus.BAD_REQUEST;
-        }
-
-        return ResponseEntity.status(status).body(response);
-    }
-
-    /**
-     * Handles identity verification exceptions.
-     */
-    @ExceptionHandler(IdentityVerificationException.class)
-    public ResponseEntity<ErrorResponse> handleIdentityVerificationException(IdentityVerificationException ex) {
-        log.warn("Identity verification error: {}", ex.getMessage());
-
-        ErrorResponse response = new ErrorResponse(ex.getErrorCode(), ex.getMessage());
-
-        HttpStatus status;
-        if (ex.getMessage().contains("not found")) {
-            status = HttpStatus.NOT_FOUND;
-        } else if (ex.getMessage().contains("expired")) {
-            status = HttpStatus.GONE;
-        } else if (ex.getMessage().contains("not authorized")) {
-            status = HttpStatus.FORBIDDEN;
         } else {
             status = HttpStatus.BAD_REQUEST;
         }

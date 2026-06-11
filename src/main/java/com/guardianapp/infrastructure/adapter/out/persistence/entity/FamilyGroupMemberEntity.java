@@ -7,6 +7,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -47,8 +49,16 @@ public class FamilyGroupMemberEntity {
     @Column(name = "family_group_id", nullable = false)
     private UUID familyGroupId;
 
+    @ManyToOne
+    @JoinColumn(name = "family_group_id", insertable = false, updatable = false)
+    private FamilyGroupEntity familyGroup;
+
     @Column(name = "user_id", nullable = false)
     private UUID userId;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private UserEntity user;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 30)

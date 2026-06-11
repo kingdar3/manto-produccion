@@ -78,8 +78,16 @@ public class FamilyGroup {
         members.add(FamilyGroupMember.create(hostUserId, FamilyMemberRole.SECONDARY_HOST));
     }
 
-    public void removeMember(UserId requesterId, UserId memberUserId) {
+    public void rename(UserId requesterId, String newName) {
         ensurePrimaryHost(requesterId);
+        this.name = validateName(newName);
+    }
+
+    public void removeMember(UserId requesterId, UserId memberUserId) {
+        boolean isSelfRemoval = requesterId.equals(memberUserId);
+        if (!isSelfRemoval) {
+            ensurePrimaryHost(requesterId);
+        }
         if (primaryHostUserId.equals(memberUserId)) {
             throw new IllegalStateException("Primary host cannot be removed from the family group");
         }

@@ -18,4 +18,6 @@ public interface FamilyGroupMemberJpaRepository extends JpaRepository<FamilyGrou
     List<FamilyGroupMemberEntity> findByUserId(UUID userId);
 
     void deleteByFamilyGroupId(UUID familyGroupId);
+
+    void deleteByUserId(UUID userId);
 }

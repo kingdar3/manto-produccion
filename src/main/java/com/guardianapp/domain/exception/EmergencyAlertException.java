@@ -37,6 +37,13 @@ public class EmergencyAlertException extends DomainException {
         );
     }
 
+    public static EmergencyAlertException protectedUserNotInFamily(String userId, String hostId) {
+        return new EmergencyAlertException(
+                "User " + userId + " is no longer a protected member for host " + hostId,
+                "EMERGENCY_ALERT_PROTECTED_NOT_IN_FAMILY"
+        );
+    }
+
     public static EmergencyAlertException notAuthorizedToResolve(String userId) {
         return new EmergencyAlertException(
                 "User " + userId + " is not authorized to resolve this emergency alert",

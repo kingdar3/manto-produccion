@@ -36,15 +36,6 @@ public class LinkEntity {
     @Column(name = "protected_id", nullable = false)
     private UUID protectedId;
 
-    @Column(name = "connection_code", nullable = false, length = 6)
-    private String connectionCode;
-
-    @Column(name = "code_created_at", nullable = false)
-    private LocalDateTime codeCreatedAt;
-
-    @Column(name = "code_expires_at", nullable = false)
-    private LocalDateTime codeExpiresAt;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private LinkStatus status;
