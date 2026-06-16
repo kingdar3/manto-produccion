@@ -20,6 +20,8 @@ public interface SmsThreatAlertUseCase {
 
     List<SmsThreatAlert> getPendingForHost(UserId hostId);
 
+    List<SmsThreatAlert> getHistoryForHost(UserId hostId);
+
     SmsThreatAlert resolve(ResolveSmsThreatAlertCommand command);
 
     record CreateSmsThreatAlertCommand(
@@ -43,9 +45,6 @@ public interface SmsThreatAlertUseCase {
             }
             if (messageExcerpt == null || messageExcerpt.isBlank()) {
                 throw new IllegalArgumentException("Message excerpt is required");
-            }
-            if (detectedUrl == null || detectedUrl.isBlank()) {
-                throw new IllegalArgumentException("Detected URL is required");
             }
             if (analysisStatus == null) {
                 throw new IllegalArgumentException("Analysis status is required");

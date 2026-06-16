@@ -20,6 +20,8 @@ public interface SmsThreatAlertRepositoryPort {
 
     List<SmsThreatAlert> findPendingByHostId(UserId hostId);
 
+    List<SmsThreatAlert> findHistoryByHostId(UserId hostId);
+
     List<SmsThreatAlert> findByLinkIdAndStatus(LinkId linkId, SmsThreatAlertStatus status);
 
     boolean existsPendingByLinkIdAndUrl(LinkId linkId, String detectedUrl);

@@ -1,6 +1,7 @@
 package com.guardianapp.application.service;
 
 import com.guardianapp.domain.enums.SmsThreatAlertStatus;
+import com.guardianapp.domain.enums.UrlThreatStatus;
 import com.guardianapp.domain.exception.SmsThreatAlertException;
 import com.guardianapp.domain.model.Link;
 import com.guardianapp.domain.model.SmsThreatAlert;
@@ -43,10 +44,13 @@ public class SmsThreatAlertService implements SmsThreatAlertUseCase {
             );
         }
 
-        if (smsThreatAlertRepository.existsPendingByLinkIdAndUrl(command.linkId(), command.detectedUrl())) {
+        if (requiresHostReview(command.analysisStatus())
+                && command.detectedUrl() != null
+                && !command.detectedUrl().isBlank()
+                && smsThreatAlertRepository.existsPendingByLinkIdAndUrl(command.linkId(), command.detectedUrl())) {
             return smsThreatAlertRepository.findByLinkIdAndStatus(command.linkId(), SmsThreatAlertStatus.PENDING)
                 .stream()
-                .filter(a -> a.getDetectedUrl().equals(command.detectedUrl()))
+                .filter(a -> command.detectedUrl().equals(a.getDetectedUrl()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Expected pending SMS threat alert not found"));
         }
@@ -76,6 +80,11 @@ public class SmsThreatAlertService implements SmsThreatAlertUseCase {
     }
 
     @Override
+    public List<SmsThreatAlert> getHistoryForHost(UserId hostId) {
+        return smsThreatAlertRepository.findHistoryByHostId(hostId);
+    }
+
+    @Override
     public SmsThreatAlert resolve(ResolveSmsThreatAlertCommand command) {
         SmsThreatAlert alert = smsThreatAlertRepository.findById(command.alertId())
             .orElseThrow(() -> SmsThreatAlertException.notFound(command.alertId().toString()));
@@ -95,5 +104,13 @@ public class SmsThreatAlertService implements SmsThreatAlertUseCase {
         }
 
         return smsThreatAlertRepository.save(alert);
+    }
+
+    private boolean requiresHostReview(UrlThreatStatus status) {
+        return status == UrlThreatStatus.PHISHING
+                || status == UrlThreatStatus.MALWARE
+                || status == UrlThreatStatus.UNWANTED
+                || status == UrlThreatStatus.SUSPICIOUS
+                || status == UrlThreatStatus.ERROR;
     }
 }

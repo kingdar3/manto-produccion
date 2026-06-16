@@ -64,6 +64,17 @@ public class SmsThreatAlertController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/history")
+    public ResponseEntity<List<SmsThreatAlertResponse>> getHistoryForHost(
+            @RequestHeader("X-User-Id") String hostId) {
+        List<SmsThreatAlertResponse> response = smsThreatAlertUseCase
+            .getHistoryForHost(UserId.fromString(hostId))
+            .stream()
+            .map(SmsThreatAlertResponse::from)
+            .toList();
+        return ResponseEntity.ok(response);
+    }
+
     @PutMapping("/{id}/resolve")
     public ResponseEntity<SmsThreatAlertResponse> resolve(
             @PathVariable String id,

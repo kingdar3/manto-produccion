@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * JPA entity for SMS threat alerts.
+ * JPA entity for SMS threat alerts and logged SMS history.
  */
 @Entity
 @Table(name = "sms_threat_alerts", indexes = {
@@ -56,7 +56,7 @@ public class SmsThreatAlertEntity {
     @Column(name = "message_excerpt", nullable = false, length = 5000)
     private String messageExcerpt;
 
-    @Column(name = "detected_url", nullable = false, length = 2048)
+    @Column(name = "detected_url", length = 2048)
     private String detectedUrl;
 
     @Enumerated(EnumType.STRING)

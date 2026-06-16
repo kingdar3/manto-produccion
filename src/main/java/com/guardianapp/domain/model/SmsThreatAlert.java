@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
- * Domain model for SMS threat alerts raised by protected users.
+ * Domain model for SMS records and threat alerts raised by protected users.
  */
 public class SmsThreatAlert {
 
@@ -49,7 +49,7 @@ public class SmsThreatAlert {
         this.hostUserId = Objects.requireNonNull(hostUserId, "Host user ID is required");
         this.sender = Objects.requireNonNull(sender, "Sender is required");
         this.messageExcerpt = Objects.requireNonNull(messageExcerpt, "Message excerpt is required");
-        this.detectedUrl = Objects.requireNonNull(detectedUrl, "Detected URL is required");
+        this.detectedUrl = normalizeDetectedUrl(detectedUrl);
         this.analysisStatus = Objects.requireNonNull(analysisStatus, "Analysis status is required");
         this.analysisReason = analysisReason;
         this.status = Objects.requireNonNull(status, "Status is required");
@@ -73,9 +73,12 @@ public class SmsThreatAlert {
         if (messageExcerpt == null || messageExcerpt.isBlank()) {
             throw new IllegalArgumentException("Message excerpt cannot be blank");
         }
-        if (detectedUrl == null || detectedUrl.isBlank()) {
-            throw new IllegalArgumentException("Detected URL cannot be blank");
+        if (analysisStatus == null) {
+            throw new IllegalArgumentException("Analysis status cannot be null");
         }
+
+        LocalDateTime now = LocalDateTime.now();
+        boolean requiresHostReview = requiresHostReview(analysisStatus);
 
         return new SmsThreatAlert(
             SmsThreatAlertId.generate(),
@@ -87,11 +90,11 @@ public class SmsThreatAlert {
             detectedUrl,
             analysisStatus,
             analysisReason,
-            SmsThreatAlertStatus.PENDING,
-            LocalDateTime.now(),
+            requiresHostReview ? SmsThreatAlertStatus.PENDING : SmsThreatAlertStatus.RESOLVED_SAFE,
+            now,
+            requiresHostReview ? null : now,
             null,
-            null,
-            null
+            requiresHostReview ? null : "Registrado automaticamente como SMS seguro"
         );
     }
 
@@ -163,6 +166,21 @@ public class SmsThreatAlert {
         if (this.status != SmsThreatAlertStatus.PENDING) {
             throw new IllegalStateException("SMS threat alert has already been resolved");
         }
+    }
+
+    private static boolean requiresHostReview(UrlThreatStatus analysisStatus) {
+        return analysisStatus == UrlThreatStatus.PHISHING
+                || analysisStatus == UrlThreatStatus.MALWARE
+                || analysisStatus == UrlThreatStatus.UNWANTED
+                || analysisStatus == UrlThreatStatus.SUSPICIOUS
+                || analysisStatus == UrlThreatStatus.ERROR;
+    }
+
+    private static String normalizeDetectedUrl(String detectedUrl) {
+        if (detectedUrl == null || detectedUrl.isBlank()) {
+            return "";
+        }
+        return detectedUrl.trim();
     }
 
     public SmsThreatAlertId getId() { return id; }

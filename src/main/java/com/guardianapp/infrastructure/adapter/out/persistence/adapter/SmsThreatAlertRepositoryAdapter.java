@@ -52,6 +52,14 @@ public class SmsThreatAlertRepositoryAdapter implements SmsThreatAlertRepository
     }
 
     @Override
+    public List<SmsThreatAlert> findHistoryByHostId(UserId hostId) {
+        return jpaRepository.findByHostUserIdOrderByCreatedAtDesc(hostId.getValue())
+            .stream()
+            .map(mapper::toDomain)
+            .collect(Collectors.toList());
+    }
+
+    @Override
     public List<SmsThreatAlert> findByLinkIdAndStatus(LinkId linkId, SmsThreatAlertStatus status) {
         return jpaRepository.findByLinkIdAndStatusOrderByCreatedAtDesc(linkId.getValue(), status)
             .stream()

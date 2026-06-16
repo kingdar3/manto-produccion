@@ -15,12 +15,14 @@ import java.util.UUID;
 public interface SmsThreatAlertJpaRepository extends JpaRepository<SmsThreatAlertEntity, UUID> {
 
     List<SmsThreatAlertEntity> findByHostUserIdAndStatusOrderByCreatedAtDesc(UUID hostUserId,
-                                                                              SmsThreatAlertStatus status);
+                                                                             SmsThreatAlertStatus status);
+
+    List<SmsThreatAlertEntity> findByHostUserIdOrderByCreatedAtDesc(UUID hostUserId);
 
     List<SmsThreatAlertEntity> findByLinkIdAndStatusOrderByCreatedAtDesc(UUID linkId,
-                                                                          SmsThreatAlertStatus status);
+                                                                         SmsThreatAlertStatus status);
 
     boolean existsByLinkIdAndDetectedUrlAndStatus(UUID linkId,
-                                                   String detectedUrl,
-                                                   SmsThreatAlertStatus status);
+                                                  String detectedUrl,
+                                                  SmsThreatAlertStatus status);
 }

@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 import java.util.UUID;
 
 /**
- * Request DTO for creating SMS threat alerts.
+ * Request DTO for creating SMS threat alerts and SMS history records.
  */
 public record CreateSmsThreatAlertRequest(
     @NotNull(message = "Link ID is required")
@@ -25,7 +25,6 @@ public record CreateSmsThreatAlertRequest(
     @Size(max = 5000, message = "Message excerpt must not exceed 5000 characters")
     String messageExcerpt,
 
-    @NotBlank(message = "Detected URL is required")
     @Size(max = 2048, message = "Detected URL must not exceed 2048 characters")
     String detectedUrl,
 
