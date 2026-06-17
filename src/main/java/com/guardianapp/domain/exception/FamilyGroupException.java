@@ -30,6 +30,13 @@ public class FamilyGroupException extends DomainException {
         );
     }
 
+    public static FamilyGroupException memberLimitReached() {
+        return new FamilyGroupException(
+                "Family group member limit reached (max 4)",
+                "FAMILY_GROUP_MEMBER_LIMIT_REACHED"
+        );
+    }
+
     public static FamilyGroupException secondaryHostLimitReached() {
         return new FamilyGroupException(
                 "Secondary host limit reached (max 5)",

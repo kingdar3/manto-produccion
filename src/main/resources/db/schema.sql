@@ -231,3 +231,30 @@ CREATE TABLE public.family_group_members (
 );
 CREATE INDEX idx_family_member_group ON public.family_group_members USING btree (family_group_id);
 CREATE INDEX idx_family_member_user ON public.family_group_members USING btree (user_id);
+
+-- ==========================================
+-- SISTEMA DE CONTROL PARENTAL (BLOQUEO DE APPS)
+-- ==========================================
+
+-- 1. Tabla para almacenar qué apps tiene instaladas el protegido
+CREATE TABLE protected_installed_apps (
+                                          id UUID PRIMARY KEY,
+                                          protected_user_id VARCHAR(255) NOT NULL, -- Cambiado a VARCHAR para soportar el ID de Firebase
+                                          package_name VARCHAR(255) NOT NULL,
+                                          app_name VARCHAR(255) NOT NULL,
+                                          reported_at TIMESTAMP NOT NULL,
+    -- (Omitimos el FOREIGN KEY porque users.id es UUID y esto es VARCHAR)
+                                          CONSTRAINT uk_installed_app_user UNIQUE (protected_user_id, package_name)
+);
+
+-- 2. Tabla para almacenar qué apps ha bloqueado el anfitrión
+CREATE TABLE blocked_apps (
+                              id UUID PRIMARY KEY,
+                              family_group_id VARCHAR(255) NOT NULL, -- Cambiado a VARCHAR
+                              package_name VARCHAR(255) NOT NULL,
+                              app_name VARCHAR(255) NOT NULL,
+                              blocked_by VARCHAR(255) NOT NULL, -- Cambiado a VARCHAR
+                              created_at TIMESTAMP NOT NULL,
+    -- (Omitimos los FOREIGN KEY por compatibilidad de tipos de dato)
+                              CONSTRAINT uk_blocked_app_group UNIQUE (family_group_id, package_name)
+);

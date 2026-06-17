@@ -15,6 +15,7 @@ import java.util.Objects;
  */
 public class FamilyGroup {
 
+    private static final int MAX_MEMBERS = 4;
     private static final int MAX_SECONDARY_HOSTS = 5;
 
     private final FamilyGroupId id;
@@ -61,12 +62,14 @@ public class FamilyGroup {
     public void addProtectedMember(UserId requesterId, UserId protectedUserId) {
         ensurePrimaryHost(requesterId);
         ensureMemberNotExists(protectedUserId);
+        ensureMemberLimitNotReached();
         members.add(FamilyGroupMember.create(protectedUserId, FamilyMemberRole.PROTECTED));
     }
 
     public void addSecondaryHost(UserId requesterId, UserId hostUserId) {
         ensurePrimaryHost(requesterId);
         ensureMemberNotExists(hostUserId);
+        ensureMemberLimitNotReached();
 
         long secondaryHosts = members.stream()
                 .filter(m -> m.getRole() == FamilyMemberRole.SECONDARY_HOST)
@@ -133,6 +136,12 @@ public class FamilyGroup {
     private void ensureMemberNotExists(UserId userId) {
         if (hasMember(userId)) {
             throw new IllegalStateException("User is already a member of this family group");
+        }
+    }
+
+    private void ensureMemberLimitNotReached() {
+        if (members.size() >= MAX_MEMBERS) {
+            throw new IllegalStateException("Family group member limit reached (max " + MAX_MEMBERS + ")");
         }
     }
 
