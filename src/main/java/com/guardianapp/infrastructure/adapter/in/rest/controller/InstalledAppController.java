@@ -1,9 +1,11 @@
 package com.guardianapp.infrastructure.adapter.in.rest.controller;
 
 import com.guardianapp.domain.model.InstalledApp;
+import com.guardianapp.domain.model.ManagedInstalledApp;
 import com.guardianapp.domain.port.in.ReportInstalledAppsUseCase;
 import com.guardianapp.infrastructure.adapter.in.rest.dto.request.ReportInstalledAppsRequest;
 import com.guardianapp.infrastructure.adapter.in.rest.dto.response.InstalledAppResponse;
+import com.guardianapp.infrastructure.adapter.in.rest.dto.response.ManagedInstalledAppResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +26,7 @@ public class InstalledAppController {
 
     @PostMapping("/report")
     public ResponseEntity<Void> reportApps(
-            @RequestHeader("X-User-Id") String protectedUserId, // Cambiado a String
+            @RequestHeader("X-User-Id") String protectedUserId,
             @RequestBody ReportInstalledAppsRequest request) {
 
         List<InstalledApp> domainApps = request.apps().stream()
@@ -42,8 +44,8 @@ public class InstalledAppController {
 
     @GetMapping("/{protectedUserId}")
     public ResponseEntity<List<InstalledAppResponse>> getInstalledApps(
-            @RequestHeader("X-User-Id") String hostId, // Cambiado a String
-            @PathVariable String protectedUserId) { // Cambiado a String
+            @RequestHeader("X-User-Id") String hostId,
+            @PathVariable String protectedUserId) {
 
         List<InstalledAppResponse> response = useCase.getInstalledApps(protectedUserId).stream()
                 .map(app -> new InstalledAppResponse(
@@ -54,5 +56,31 @@ public class InstalledAppController {
                 )).collect(Collectors.toList());
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{protectedUserId}/family/{familyGroupId}")
+    public ResponseEntity<List<ManagedInstalledAppResponse>> getManagedInstalledApps(
+            @RequestHeader("X-User-Id") String hostId,
+            @PathVariable String protectedUserId,
+            @PathVariable String familyGroupId) {
+
+        List<ManagedInstalledAppResponse> response = useCase
+                .getManagedApps(protectedUserId, familyGroupId, hostId)
+                .stream()
+                .map(this::mapToManagedResponse)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
+    }
+
+    private ManagedInstalledAppResponse mapToManagedResponse(ManagedInstalledApp app) {
+        return new ManagedInstalledAppResponse(
+                app.getInstalledAppId(),
+                app.getBlockedAppId(),
+                app.getPackageName(),
+                app.getAppName(),
+                app.getReportedAt(),
+                app.isBlocked()
+        );
     }
 }

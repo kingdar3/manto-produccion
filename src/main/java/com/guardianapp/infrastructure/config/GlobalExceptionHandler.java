@@ -1,6 +1,7 @@
 package com.guardianapp.infrastructure.config;
 
 import com.guardianapp.domain.exception.AlertException;
+import com.guardianapp.domain.exception.BlockedAppException;
 import com.guardianapp.domain.exception.BlacklistUrlException;
 import com.guardianapp.domain.exception.DomainException;
 import com.guardianapp.domain.exception.EmergencyAlertException;
@@ -138,6 +139,29 @@ public class GlobalExceptionHandler {
         HttpStatus status = ex.getMessage().contains("already exists")
             ? HttpStatus.CONFLICT
             : HttpStatus.BAD_REQUEST;
+
+        return ResponseEntity.status(status).body(response);
+    }
+
+    /**
+     * Handles blocked app exceptions.
+     */
+    @ExceptionHandler(BlockedAppException.class)
+    public ResponseEntity<ErrorResponse> handleBlockedAppException(BlockedAppException ex) {
+        log.warn("Blocked app error: {}", ex.getMessage());
+
+        ErrorResponse response = new ErrorResponse(ex.getErrorCode(), ex.getMessage());
+
+        HttpStatus status;
+        if (ex.getMessage().contains("not found")) {
+            status = HttpStatus.NOT_FOUND;
+        } else if (ex.getMessage().contains("not authorized")) {
+            status = HttpStatus.FORBIDDEN;
+        } else if (ex.getMessage().contains("already blocked")) {
+            status = HttpStatus.CONFLICT;
+        } else {
+            status = HttpStatus.BAD_REQUEST;
+        }
 
         return ResponseEntity.status(status).body(response);
     }

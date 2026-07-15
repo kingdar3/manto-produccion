@@ -7,6 +7,7 @@ import com.guardianapp.infrastructure.adapter.out.persistence.repository.Blocked
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,11 @@ public class BlockedAppRepositoryAdapter implements BlockedAppRepositoryPort {
     @Override
     public void deleteById(UUID id) {
         jpaRepository.deleteById(id);
+    }
+
+    @Override
+    public Optional<BlockedApp> findById(UUID id) {
+        return jpaRepository.findById(id).map(mapper::toDomain);
     }
 
     @Override

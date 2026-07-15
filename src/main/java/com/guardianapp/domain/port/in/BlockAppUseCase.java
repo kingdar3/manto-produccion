@@ -6,6 +6,6 @@ import java.util.UUID;
 
 public interface BlockAppUseCase {
     BlockedApp blockApp(String familyGroupId, String packageName, String appName, String hostId);
-    void unblockApp(UUID blockedAppId);
+    void unblockApp(UUID blockedAppId, String hostId);
     List<BlockedApp> getBlockedAppsByFamilyGroup(String familyGroupId);
 }

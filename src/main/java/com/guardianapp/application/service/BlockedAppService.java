@@ -1,8 +1,14 @@
 package com.guardianapp.application.service;
 
+import com.guardianapp.domain.exception.BlockedAppException;
+import com.guardianapp.domain.exception.FamilyGroupException;
 import com.guardianapp.domain.model.BlockedApp;
+import com.guardianapp.domain.model.FamilyGroup;
+import com.guardianapp.domain.model.valueobject.FamilyGroupId;
+import com.guardianapp.domain.model.valueobject.UserId;
 import com.guardianapp.domain.port.in.BlockAppUseCase;
 import com.guardianapp.domain.port.out.BlockedAppRepositoryPort;
+import com.guardianapp.domain.port.out.FamilyGroupRepositoryPort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -13,21 +19,26 @@ import java.util.UUID;
 public class BlockedAppService implements BlockAppUseCase {
 
     private final BlockedAppRepositoryPort repositoryPort;
+    private final FamilyGroupRepositoryPort familyGroupRepository;
 
-    public BlockedAppService(BlockedAppRepositoryPort repositoryPort) {
+    public BlockedAppService(
+            BlockedAppRepositoryPort repositoryPort,
+            FamilyGroupRepositoryPort familyGroupRepository) {
         this.repositoryPort = repositoryPort;
+        this.familyGroupRepository = familyGroupRepository;
     }
 
     @Override
     public BlockedApp blockApp(String familyGroupId, String packageName, String appName, String hostId) {
-        // Validar si ya está bloqueada para no duplicar
+        FamilyGroup familyGroup = getAuthorizedFamilyGroup(familyGroupId, hostId);
+
         if (repositoryPort.existsByFamilyGroupIdAndPackageName(familyGroupId, packageName)) {
-            throw new RuntimeException("Esta aplicación ya está bloqueada para tu grupo familiar.");
+            throw BlockedAppException.alreadyBlocked(packageName);
         }
 
         BlockedApp newBlock = new BlockedApp(
-                UUID.randomUUID(), // Este sí se queda como UUID porque es el ID único del registro
-                familyGroupId,
+                UUID.randomUUID(),
+                familyGroup.getId().toString(),
                 packageName,
                 appName,
                 hostId,
@@ -38,12 +49,28 @@ public class BlockedAppService implements BlockAppUseCase {
     }
 
     @Override
-    public void unblockApp(UUID blockedAppId) {
+    public void unblockApp(UUID blockedAppId, String hostId) {
+        BlockedApp blockedApp = repositoryPort.findById(blockedAppId)
+                .orElseThrow(() -> BlockedAppException.notFound(blockedAppId.toString()));
+
+        getAuthorizedFamilyGroup(blockedApp.getFamilyGroupId(), hostId);
         repositoryPort.deleteById(blockedAppId);
     }
 
     @Override
     public List<BlockedApp> getBlockedAppsByFamilyGroup(String familyGroupId) {
         return repositoryPort.findByFamilyGroupId(familyGroupId);
+    }
+
+    private FamilyGroup getAuthorizedFamilyGroup(String familyGroupId, String hostId) {
+        FamilyGroup group = familyGroupRepository.findById(FamilyGroupId.fromString(familyGroupId))
+                .orElseThrow(() -> FamilyGroupException.notFound(familyGroupId));
+
+        UserId requesterId = UserId.fromString(hostId);
+        if (!group.isHost(requesterId)) {
+            throw BlockedAppException.notAuthorized(hostId);
+        }
+
+        return group;
     }
 }

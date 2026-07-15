@@ -23,7 +23,7 @@ public class BlockedAppController {
 
     @PostMapping
     public ResponseEntity<BlockedAppResponse> blockApp(
-            @RequestHeader("X-User-Id") String hostId, // Cambiado a String
+            @RequestHeader("X-User-Id") String hostId,
             @RequestBody BlockAppRequest request) {
 
         BlockedApp blockedApp = useCase.blockApp(
@@ -38,16 +38,16 @@ public class BlockedAppController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> unblockApp(
-            @RequestHeader("X-User-Id") String hostId, // Cambiado a String
-            @PathVariable UUID id) { // El ID del bloqueo (interno) sí puede seguir siendo UUID
-        useCase.unblockApp(id);
+            @RequestHeader("X-User-Id") String hostId,
+            @PathVariable UUID id) {
+        useCase.unblockApp(id, hostId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/family/{familyGroupId}")
     public ResponseEntity<List<BlockedAppResponse>> getBlockedAppsByFamily(
-            @RequestHeader("X-User-Id") String hostId, // Cambiado a String
-            @PathVariable String familyGroupId) { // Cambiado a String
+            @RequestHeader("X-User-Id") String hostId,
+            @PathVariable String familyGroupId) {
 
         List<BlockedAppResponse> response = useCase.getBlockedAppsByFamilyGroup(familyGroupId).stream()
                 .map(this::mapToResponse)
@@ -58,8 +58,8 @@ public class BlockedAppController {
 
     @GetMapping("/my-restrictions/{familyGroupId}")
     public ResponseEntity<List<BlockedAppResponse>> getMyRestrictions(
-            @RequestHeader("X-User-Id") String protectedUserId, // Cambiado a String
-            @PathVariable String familyGroupId) { // Cambiado a String
+            @RequestHeader("X-User-Id") String protectedUserId,
+            @PathVariable String familyGroupId) {
 
         List<BlockedAppResponse> response = useCase.getBlockedAppsByFamilyGroup(familyGroupId).stream()
                 .map(this::mapToResponse)
