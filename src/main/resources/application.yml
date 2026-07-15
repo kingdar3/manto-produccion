@@ -16,21 +16,22 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
 
 server:
   port: ${SERVER_PORT:8081}
 
+
 logging:
   level:
-    com.guardianapp: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    root: INFO
+    com.guardianapp: INFO
+    org.hibernate: WARN
 
 firebase:
   enabled: ${FIREBASE_ENABLED:true}
